@@ -9,6 +9,9 @@ struct SketchWindowView: View {
     @State private var hoverHideWorkItem: DispatchWorkItem?
     @State private var isLeftEdgeHovering = false
     @State private var isRightEdgeHovering = false
+    @State private var isRightEdgeClickFeedbackVisible = false
+    @State private var isRightEdgeHoverSuppressed = false
+    @State private var rightEdgeClickFeedbackWorkItem: DispatchWorkItem?
     @State private var viewport = ViewportTransform()
 
     init(store: DrawingLibraryStore) {
@@ -102,6 +105,7 @@ struct SketchWindowView: View {
             model.newDrawing()
         }
         .onDisappear {
+            rightEdgeClickFeedbackWorkItem?.cancel()
             model.flushAutosave()
             window?.level = .normal
         }
@@ -138,34 +142,32 @@ struct SketchWindowView: View {
             ZStack(alignment: .trailing) {
                 Color.clear
 
-                HStack(spacing: 4) {
-                    Image(systemName: "plus")
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundColor(.primary.opacity(0.32))
-
-                    RoundedRectangle(cornerRadius: 3, style: .continuous)
-                        .fill(Color.primary.opacity(0.16))
-                        .frame(width: 4, height: 72)
-                }
-                .padding(.trailing, 6)
-                .opacity(isRightEdgeHovering ? 1 : 0)
-                .animation(.easeOut(duration: 0.14), value: isRightEdgeHovering)
+                Image(systemName: "plus")
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundColor(isRightEdgeClickFeedbackVisible ? .accentColor : .primary.opacity(0.34))
+                    .frame(width: 18, height: 44)
+                    .padding(.trailing, 2)
+                    .opacity(shouldShowRightEdgePlus ? 1 : 0)
+                    .animation(.easeOut(duration: 0.12), value: shouldShowRightEdgePlus)
+                    .animation(.easeOut(duration: 0.08), value: isRightEdgeClickFeedbackVisible)
             }
             .frame(width: 24)
             .frame(maxHeight: .infinity)
             .contentShape(Rectangle())
             .onHover { isHovering in
-                withAnimation(.easeOut(duration: 0.14)) {
-                    isRightEdgeHovering = isHovering
-                }
+                handleRightEdgeHover(isHovering)
             }
             .onTapGesture {
-                model.newDrawing()
+                handleRightEdgeTap()
             }
             .help("New Drawing")
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .zIndex(2)
+    }
+
+    private var shouldShowRightEdgePlus: Bool {
+        isRightEdgeClickFeedbackVisible || (isRightEdgeHovering && !isRightEdgeHoverSuppressed)
     }
 
     private var windowPinButton: some View {
@@ -218,6 +220,43 @@ struct SketchWindowView: View {
         } else {
             scheduleSidebarHide()
         }
+    }
+
+    private func handleRightEdgeHover(_ isHovering: Bool) {
+        if isHovering {
+            withAnimation(.easeOut(duration: 0.12)) {
+                isRightEdgeHovering = !isRightEdgeHoverSuppressed
+            }
+        } else {
+            rightEdgeClickFeedbackWorkItem?.cancel()
+            rightEdgeClickFeedbackWorkItem = nil
+            isRightEdgeHoverSuppressed = false
+
+            withAnimation(.easeOut(duration: 0.12)) {
+                isRightEdgeHovering = false
+                isRightEdgeClickFeedbackVisible = false
+            }
+        }
+    }
+
+    private func handleRightEdgeTap() {
+        model.newDrawing()
+
+        rightEdgeClickFeedbackWorkItem?.cancel()
+        isRightEdgeHoverSuppressed = true
+
+        withAnimation(.easeOut(duration: 0.08)) {
+            isRightEdgeHovering = false
+            isRightEdgeClickFeedbackVisible = true
+        }
+
+        let workItem = DispatchWorkItem {
+            withAnimation(.easeOut(duration: 0.14)) {
+                isRightEdgeClickFeedbackVisible = false
+            }
+        }
+        rightEdgeClickFeedbackWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.16, execute: workItem)
     }
 
     private func scheduleSidebarHide() {
