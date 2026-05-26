@@ -12,7 +12,7 @@ final class DrawingLibraryStoreTests: XCTestCase {
             strokes: [
                 DrawingStroke(
                     points: [DrawingPoint(x: 1, y: 2), DrawingPoint(x: 3, y: 4)],
-                    color: .paletteTeal,
+                    color: .palettePurple,
                     width: .small,
                     isDashed: false
                 )
@@ -24,7 +24,7 @@ final class DrawingLibraryStoreTests: XCTestCase {
         let summaries = try store.loadIndex()
         XCTAssertEqual(summaries.map(\.id), [drawing.id])
         let svg = try String(contentsOf: store.svgURL(for: drawing.id), encoding: .utf8)
-        XCTAssertTrue(svg.contains("#14B8A6"))
+        XCTAssertTrue(svg.contains("#8B5CF6"))
     }
 
     func testLoadDrawingDecodesSavedSVGMetadata() throws {
