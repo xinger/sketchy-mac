@@ -8,6 +8,7 @@ struct SketchWindowView: View {
     @State private var hoverRevealWorkItem: DispatchWorkItem?
     @State private var hoverHideWorkItem: DispatchWorkItem?
     @State private var isLeftEdgeHovering = false
+    @State private var isRightEdgeHovering = false
     @State private var viewport = ViewportTransform()
 
     init(store: DrawingLibraryStore) {
@@ -42,6 +43,7 @@ struct SketchWindowView: View {
                 }
 
                 leftHoverStrip
+                rightNewDrawingHoverStrip
 
                 HistorySidebarView(
                     summaries: model.summaries,
@@ -119,6 +121,43 @@ struct SketchWindowView: View {
             .onTapGesture {
                 setSidebarVisible(true)
             }
+    }
+
+    private var rightNewDrawingHoverStrip: some View {
+        HStack {
+            Spacer()
+
+            ZStack(alignment: .trailing) {
+                Color.clear
+
+                HStack(spacing: 4) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(.primary.opacity(0.32))
+
+                    RoundedRectangle(cornerRadius: 3, style: .continuous)
+                        .fill(Color.primary.opacity(0.16))
+                        .frame(width: 4, height: 72)
+                }
+                .padding(.trailing, 6)
+                .opacity(isRightEdgeHovering ? 1 : 0)
+                .animation(.easeOut(duration: 0.14), value: isRightEdgeHovering)
+            }
+            .frame(width: 24)
+            .frame(maxHeight: .infinity)
+            .contentShape(Rectangle())
+            .onHover { isHovering in
+                withAnimation(.easeOut(duration: 0.14)) {
+                    isRightEdgeHovering = isHovering
+                }
+            }
+            .onTapGesture {
+                model.newDrawing()
+            }
+            .help("New Drawing")
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .zIndex(2)
     }
 
     private var windowPinButton: some View {
