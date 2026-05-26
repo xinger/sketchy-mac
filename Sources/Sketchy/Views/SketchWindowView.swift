@@ -143,10 +143,10 @@ struct SketchWindowView: View {
                 Color.clear
 
                 Image(systemName: "plus")
-                    .font(.system(size: 10, weight: .medium))
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundColor(isRightEdgeClickFeedbackVisible ? .accentColor : .primary.opacity(0.34))
-                    .frame(width: 18, height: 44)
-                    .padding(.trailing, 2)
+                    .frame(width: 22, height: 44)
+                    .padding(.trailing, 1)
                     .opacity(shouldShowRightEdgePlus ? 1 : 0)
                     .animation(.easeOut(duration: 0.12), value: shouldShowRightEdgePlus)
                     .animation(.easeOut(duration: 0.08), value: isRightEdgeClickFeedbackVisible)
