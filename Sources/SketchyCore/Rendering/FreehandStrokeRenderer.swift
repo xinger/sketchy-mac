@@ -47,10 +47,8 @@ public enum FreehandStrokeRenderer {
     }
 
     private static func outlinePoints(points rawPoints: [DrawingPoint], baseWidth: Double) -> [DrawingPoint] {
-        let points = streamlined(rawPoints, amount: 0.45)
-
-        guard points.count > 1 else {
-            guard let point = points.first else {
+        guard rawPoints.count > 1 else {
+            guard let point = rawPoints.first else {
                 return []
             }
 
@@ -69,10 +67,10 @@ public enum FreehandStrokeRenderer {
         var radii: [Double] = []
         var previousSpeed = 0.0
 
-        for index in points.indices {
-            let current = points[index]
-            let previous = points[max(points.startIndex, index - 1)]
-            let next = points[min(points.index(before: points.endIndex), index + 1)]
+        for index in rawPoints.indices {
+            let current = rawPoints[index]
+            let previous = rawPoints[max(rawPoints.startIndex, index - 1)]
+            let next = rawPoints[min(rawPoints.index(before: rawPoints.endIndex), index + 1)]
             let direction = normalized(
                 DrawingPoint(
                     x: next.x - previous.x,
@@ -104,8 +102,8 @@ public enum FreehandStrokeRenderer {
         }
 
         guard
-            let first = points.first,
-            let last = points.last,
+            let first = rawPoints.first,
+            let last = rawPoints.last,
             let firstDirection = directions.first,
             let lastDirection = directions.last,
             let firstRadius = radii.first,
@@ -149,31 +147,6 @@ public enum FreehandStrokeRenderer {
                 y: center.y + direction.y * radius * forward + normal.y * radius * sideways
             )
         }
-    }
-
-    private static func streamlined(_ points: [DrawingPoint], amount: Double) -> [DrawingPoint] {
-        guard points.count > 2 else {
-            return points
-        }
-
-        var result = [points[0]]
-        var previous = points[0]
-        let follow = min(max(amount, 0), 0.95)
-
-        for point in points.dropFirst().dropLast() {
-            let next = DrawingPoint(
-                x: previous.x + (point.x - previous.x) * (1 - follow),
-                y: previous.y + (point.y - previous.y) * (1 - follow)
-            )
-            result.append(next)
-            previous = next
-        }
-
-        if let last = points.last {
-            result.append(last)
-        }
-
-        return result
     }
 
     private static func normalized(_ point: DrawingPoint) -> DrawingPoint {
