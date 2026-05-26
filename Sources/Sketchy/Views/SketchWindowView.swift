@@ -5,7 +5,6 @@ import SketchyCore
 struct SketchWindowView: View {
     @StateObject private var model: SketchWindowModel
     @State private var window: NSWindow?
-    @State private var hoverRevealWorkItem: DispatchWorkItem?
     @State private var hoverHideWorkItem: DispatchWorkItem?
     @State private var isLeftEdgeHovering = false
     @State private var isRightEdgeHovering = false
@@ -115,15 +114,16 @@ struct SketchWindowView: View {
         ZStack(alignment: .leading) {
             Color.clear
 
-            RoundedRectangle(cornerRadius: 3, style: .continuous)
-                .fill(Color.primary.opacity(0.16))
-                .frame(width: 4, height: 72)
-                .padding(.leading, 6)
+            Image(systemName: "sidebar.left")
+                .font(.system(size: 13, weight: .regular))
+                .foregroundColor(.primary.opacity(0.34))
+                .frame(width: 24, height: 44)
+                .padding(.leading, 12)
                 .opacity(isLeftEdgeHovering && !model.isSidebarVisible ? 1 : 0)
-                .animation(.easeOut(duration: 0.14), value: isLeftEdgeHovering)
-                .animation(.easeOut(duration: 0.14), value: model.isSidebarVisible)
+                .animation(.easeOut(duration: 0.12), value: isLeftEdgeHovering)
+                .animation(.easeOut(duration: 0.12), value: model.isSidebarVisible)
         }
-            .frame(width: 24)
+            .frame(width: 36)
             .frame(maxHeight: .infinity)
             .contentShape(Rectangle())
             .zIndex(2)
@@ -191,7 +191,6 @@ struct SketchWindowView: View {
     }
 
     private func handleLeftEdgeHover(_ isHovering: Bool) {
-        hoverRevealWorkItem?.cancel()
         withAnimation(.easeOut(duration: 0.14)) {
             isLeftEdgeHovering = isHovering
         }
@@ -202,16 +201,6 @@ struct SketchWindowView: View {
         }
 
         cancelSidebarHide()
-
-        guard !model.isSidebarVisible else {
-            return
-        }
-
-        let workItem = DispatchWorkItem {
-            setSidebarVisible(true)
-        }
-        hoverRevealWorkItem = workItem
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.55, execute: workItem)
     }
 
     private func handleSidebarHover(_ isHovering: Bool) {
@@ -279,7 +268,6 @@ struct SketchWindowView: View {
     }
 
     private func setSidebarVisible(_ isVisible: Bool) {
-        hoverRevealWorkItem?.cancel()
         if isVisible {
             cancelSidebarHide()
             isLeftEdgeHovering = false
