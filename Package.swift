@@ -21,7 +21,8 @@ let package = Package(
             dependencies: [
                 "SketchyCore",
                 .product(name: "Sparkle", package: "Sparkle")
-            ]
+            ],
+            exclude: ["Resources"]
         ),
         .testTarget(name: "SketchyCoreTests", dependencies: ["SketchyCore"])
     ]

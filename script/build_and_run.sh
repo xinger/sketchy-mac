@@ -17,10 +17,12 @@ APP_BUNDLE="$DIST_DIR/$APP_NAME.app"
 APP_CONTENTS="$APP_BUNDLE/Contents"
 APP_MACOS="$APP_CONTENTS/MacOS"
 APP_FRAMEWORKS="$APP_CONTENTS/Frameworks"
+APP_RESOURCES="$APP_CONTENTS/Resources"
 APP_BINARY="$APP_MACOS/$APP_NAME"
 INFO_PLIST="$APP_CONTENTS/Info.plist"
 PACKAGE_DIR="$DIST_DIR/releases"
 ZIP_ARCHIVE="$PACKAGE_DIR/$APP_NAME-$APP_VERSION-$APP_BUILD.zip"
+SOURCE_RESOURCES="$ROOT_DIR/Sources/SketchyMac/Resources"
 
 export CLANG_MODULE_CACHE_PATH="${CLANG_MODULE_CACHE_PATH:-$ROOT_DIR/.build/clang-module-cache}"
 mkdir -p "$CLANG_MODULE_CACHE_PATH"
@@ -42,6 +44,14 @@ copy_sparkle_framework() {
   ditto "$sparkle_framework" "$APP_FRAMEWORKS/Sparkle.framework"
 }
 
+copy_app_resources() {
+  mkdir -p "$APP_RESOURCES"
+
+  if [[ -d "$SOURCE_RESOURCES" ]]; then
+    ditto "$SOURCE_RESOURCES" "$APP_RESOURCES"
+  fi
+}
+
 add_framework_rpath() {
   if ! otool -l "$APP_BINARY" | grep -q "@executable_path/../Frameworks"; then
     install_name_tool -add_rpath "@executable_path/../Frameworks" "$APP_BINARY"
@@ -56,6 +66,8 @@ write_info_plist() {
 <dict>
   <key>CFBundleExecutable</key>
   <string>$APP_NAME</string>
+  <key>CFBundleIconFile</key>
+  <string>AppIcon</string>
   <key>CFBundleIdentifier</key>
   <string>$BUNDLE_ID</string>
   <key>CFBundleName</key>
@@ -100,6 +112,7 @@ build_bundle() {
   chmod +x "$APP_BINARY"
 
   copy_sparkle_framework
+  copy_app_resources
   add_framework_rpath
   write_info_plist
   codesign --force --deep --sign - "$APP_BUNDLE"

@@ -9,7 +9,7 @@
             <sparkle:shortVersionString>0.1.0</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>11.0</sparkle:minimumSystemVersion>
             <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
-            <enclosure url="https://github.com/xinger/sketchy-mac/releases/download/v0.1.0/SketchyMac-0.1.0-1.zip" length="1301088" type="application/octet-stream" sparkle:edSignature="RQr3XB9TWX1AjzlRl7ikJrYBxp5MoprbNtpR8oOGU23VYNre8/F1EtrjMd4/3QWG51XwbyCyJl80NjWx4e7kDQ=="/>
+            <enclosure url="https://github.com/xinger/sketchy-mac/releases/download/v0.1.0/SketchyMac-0.1.0-1.zip" length="1459865" type="application/octet-stream" sparkle:edSignature="GCfHqgaR+ZqWQOz71SRQmTYhoffZqcoQRiBplO43gOcYMknhFghq0tAfGyScj/UIztqxha7nnbeJWDfa8O3GDw=="/>
         </item>
     </channel>
 </rss>
