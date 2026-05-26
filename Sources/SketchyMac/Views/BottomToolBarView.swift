@@ -11,10 +11,12 @@ struct BottomToolBarView: View {
     var body: some View {
         HStack(spacing: 18) {
             Button {
-                isSidebarVisible.toggle()
+                withAnimation(.easeOut(duration: 0.18)) {
+                    isSidebarVisible.toggle()
+                }
             } label: {
                 Image(systemName: "sidebar.left")
-                    .frame(width: 20, height: 20)
+                    .toolButtonHitArea()
             }
             .help("Drawings")
 
@@ -26,6 +28,7 @@ struct BottomToolBarView: View {
                     toolState.brushSize = size
                 } label: {
                     BrushSizeDot(size: size, isSelected: toolState.brushSize == size)
+                        .toolButtonHitArea()
                 }
                 .help(size.title)
             }
@@ -34,6 +37,7 @@ struct BottomToolBarView: View {
                 toolState.isDashed.toggle()
             } label: {
                 DashedToggleIcon(isSelected: toolState.isDashed)
+                    .toolButtonHitArea()
             }
             .help("Dashed")
 
@@ -45,6 +49,7 @@ struct BottomToolBarView: View {
                     toolState.color = color
                 } label: {
                     ColorSwatch(color: color, isSelected: toolState.color == color)
+                        .toolButtonHitArea()
                 }
                 .help(color.name)
             }
@@ -54,7 +59,7 @@ struct BottomToolBarView: View {
 
             Button(action: onNewDrawing) {
                 Image(systemName: "plus")
-                    .frame(width: 20, height: 20)
+                    .toolButtonHitArea()
             }
             .help("New Drawing")
 
@@ -62,7 +67,7 @@ struct BottomToolBarView: View {
                 isPinned.toggle()
             } label: {
                 Image(systemName: isPinned ? "pin.fill" : "pin")
-                    .frame(width: 20, height: 20)
+                    .toolButtonHitArea()
             }
             .help("Keep Above Other Windows")
         }
@@ -79,6 +84,13 @@ struct BottomToolBarView: View {
                 .stroke(Color.primary.opacity(0.08), lineWidth: 1)
         )
         .shadow(color: Color.black.opacity(0.18), radius: 14, x: 0, y: 6)
+    }
+}
+
+private extension View {
+    func toolButtonHitArea() -> some View {
+        frame(width: 34, height: 34)
+            .contentShape(Rectangle())
     }
 }
 

@@ -8,6 +8,7 @@ struct HistorySidebarView: View {
     var onSelect: (DrawingID) -> Void
     var onClose: () -> Void
     var onNewDrawing: () -> Void
+    var onHoverChange: (Bool) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -59,7 +60,7 @@ struct HistorySidebarView: View {
                 }
             }
         }
-        .frame(width: 220)
+        .frame(width: 160)
         .background(Color(NSColor.windowBackgroundColor).opacity(0.96))
         .overlay(
             Rectangle()
@@ -67,6 +68,7 @@ struct HistorySidebarView: View {
                 .frame(width: 1),
             alignment: .trailing
         )
+        .onHover(perform: onHoverChange)
     }
 }
 
@@ -78,7 +80,7 @@ private struct HistoryRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 7) {
             DrawingThumbnail(drawing: drawing)
-                .frame(height: 82)
+                .aspectRatio(1.5, contentMode: .fit)
                 .background(
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
                         .fill(Color(NSColor.textBackgroundColor))
@@ -94,6 +96,7 @@ private struct HistoryRow: View {
                 .lineLimit(1)
         }
         .padding(8)
+        .contentShape(Rectangle())
         .background(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .fill(isSelected ? Color.accentColor.opacity(0.18) : Color.clear)

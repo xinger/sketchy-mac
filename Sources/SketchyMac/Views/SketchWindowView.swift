@@ -6,6 +6,7 @@ struct SketchWindowView: View {
     @StateObject private var model: SketchWindowModel
     @State private var window: NSWindow?
     @State private var hoverRevealWorkItem: DispatchWorkItem?
+    @State private var hoverHideWorkItem: DispatchWorkItem?
     @State private var viewport = ViewportTransform()
 
     init(store: DrawingLibraryStore) {
@@ -45,8 +46,9 @@ struct SketchWindowView: View {
                         cachedDrawings: model.cachedDrawings,
                         selectedID: model.drawing.id,
                         onSelect: model.selectDrawing(id:),
-                        onClose: { model.isSidebarVisible = false },
-                        onNewDrawing: model.newDrawing
+                        onClose: { setSidebarVisible(false) },
+                        onNewDrawing: model.newDrawing,
+                        onHoverChange: handleSidebarHover
                     )
                     .transition(.move(edge: .leading).combined(with: .opacity))
                 }
@@ -56,7 +58,10 @@ struct SketchWindowView: View {
 
                     BottomToolBarView(
                         toolState: $model.toolState,
-                        isSidebarVisible: $model.isSidebarVisible,
+                        isSidebarVisible: Binding(
+                            get: { model.isSidebarVisible },
+                            set: { setSidebarVisible($0) }
+                        ),
                         isPinned: $model.isPinned,
                         onNewDrawing: model.newDrawing
                     )
@@ -69,6 +74,7 @@ struct SketchWindowView: View {
         .background(
             WindowAccessor { resolvedWindow in
                 window = resolvedWindow
+                configureWindow(resolvedWindow)
                 applyWindowLevel(to: resolvedWindow)
             }
         )
@@ -96,15 +102,72 @@ struct SketchWindowView: View {
     private func handleLeftEdgeHover(_ isHovering: Bool) {
         hoverRevealWorkItem?.cancel()
 
-        guard isHovering, !model.isSidebarVisible else {
+        if !isHovering {
+            scheduleSidebarHide()
+            return
+        }
+
+        cancelSidebarHide()
+
+        guard !model.isSidebarVisible else {
             return
         }
 
         let workItem = DispatchWorkItem {
-            model.isSidebarVisible = true
+            setSidebarVisible(true)
         }
         hoverRevealWorkItem = workItem
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.55, execute: workItem)
+    }
+
+    private func handleSidebarHover(_ isHovering: Bool) {
+        if isHovering {
+            cancelSidebarHide()
+        } else {
+            scheduleSidebarHide()
+        }
+    }
+
+    private func scheduleSidebarHide() {
+        hoverHideWorkItem?.cancel()
+
+        guard model.isSidebarVisible else {
+            return
+        }
+
+        let workItem = DispatchWorkItem {
+            setSidebarVisible(false)
+        }
+        hoverHideWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.24, execute: workItem)
+    }
+
+    private func cancelSidebarHide() {
+        hoverHideWorkItem?.cancel()
+        hoverHideWorkItem = nil
+    }
+
+    private func setSidebarVisible(_ isVisible: Bool) {
+        hoverRevealWorkItem?.cancel()
+        if isVisible {
+            cancelSidebarHide()
+        }
+
+        withAnimation(.easeOut(duration: 0.18)) {
+            model.isSidebarVisible = isVisible
+        }
+    }
+
+    private func configureWindow(_ window: NSWindow?) {
+        guard let window else {
+            return
+        }
+
+        window.title = "Sketchy"
+        window.titleVisibility = .hidden
+        window.titlebarAppearsTransparent = true
+        window.styleMask.insert(.fullSizeContentView)
+        window.toolbar = nil
     }
 
     private func applyWindowLevel(to window: NSWindow?) {

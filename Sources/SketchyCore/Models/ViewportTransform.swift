@@ -29,6 +29,19 @@ public struct ViewportTransform: Codable, Equatable, Sendable {
         ViewportTransform(scale: scale, offsetX: offsetX - deltaX, offsetY: offsetY - deltaY)
     }
 
+    public func pannedByScrollDelta(
+        deltaX: Double,
+        deltaY: Double,
+        isDirectionInvertedFromDevice: Bool
+    ) -> ViewportTransform {
+        let direction = isDirectionInvertedFromDevice ? 1.0 : -1.0
+        return ViewportTransform(
+            scale: scale,
+            offsetX: offsetX - deltaX * direction,
+            offsetY: offsetY - deltaY * direction
+        )
+    }
+
     public func zoomed(by factor: Double, aroundScreenPoint anchor: DrawingPoint) -> ViewportTransform {
         let worldAnchor = worldPoint(fromScreenPoint: anchor)
         let nextScale = Self.clampScale(scale * factor)

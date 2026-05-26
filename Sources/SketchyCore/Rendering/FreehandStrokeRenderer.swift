@@ -65,6 +65,8 @@ public enum FreehandStrokeRenderer {
 
         var left: [DrawingPoint] = []
         var right: [DrawingPoint] = []
+        var directions: [DrawingPoint] = []
+        var radii: [Double] = []
         var previousSpeed = 0.0
 
         for index in points.indices {
@@ -84,6 +86,8 @@ public enum FreehandStrokeRenderer {
 
             let pressure = max(0.35, min(1.0, 1.0 - speed / 80.0))
             let radius = baseWidth * (0.35 + pressure * 0.4)
+            directions.append(direction)
+            radii.append(radius)
 
             left.append(
                 DrawingPoint(
@@ -99,13 +103,52 @@ public enum FreehandStrokeRenderer {
             )
         }
 
-        // Keep the newest point represented exactly so live drawing never feels
-        // like it is waiting for future samples.
-        if let last = points.last {
-            left.append(last)
+        guard
+            let first = points.first,
+            let last = points.last,
+            let firstDirection = directions.first,
+            let lastDirection = directions.last,
+            let firstRadius = radii.first,
+            let lastRadius = radii.last
+        else {
+            return left + right.reversed()
         }
 
-        return left + right.reversed()
+        let startCap = capPoints(
+            center: first,
+            direction: DrawingPoint(x: -firstDirection.x, y: -firstDirection.y),
+            radius: firstRadius,
+            fromLeftToRight: false
+        )
+        let endCap = capPoints(
+            center: last,
+            direction: lastDirection,
+            radius: lastRadius,
+            fromLeftToRight: true
+        )
+
+        return startCap + left.dropFirst() + endCap + right.dropLast().reversed()
+    }
+
+    private static func capPoints(
+        center: DrawingPoint,
+        direction: DrawingPoint,
+        radius: Double,
+        fromLeftToRight: Bool
+    ) -> [DrawingPoint] {
+        let normal = DrawingPoint(x: -direction.y, y: direction.x)
+        let angles: [Double] = fromLeftToRight ? [0, 0.25, 0.5, 0.75, 1] : [1, 0.75, 0.5, 0.25, 0]
+
+        return angles.map { progress in
+            let theta = Double.pi * progress
+            let forward = sin(theta)
+            let sideways = cos(theta)
+
+            return DrawingPoint(
+                x: center.x + direction.x * radius * forward + normal.x * radius * sideways,
+                y: center.y + direction.y * radius * forward + normal.y * radius * sideways
+            )
+        }
     }
 
     private static func streamlined(_ points: [DrawingPoint], amount: Double) -> [DrawingPoint] {

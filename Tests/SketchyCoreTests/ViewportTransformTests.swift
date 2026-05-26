@@ -27,4 +27,22 @@ final class ViewportTransformTests: XCTestCase {
         XCTAssertEqual(after.x, before.x, accuracy: 0.0001)
         XCTAssertEqual(after.y, before.y, accuracy: 0.0001)
     }
+
+    func testPanDirectionFollowsNaturalScrollSetting() {
+        let transform = ViewportTransform()
+
+        let traditional = transform.pannedByScrollDelta(
+            deltaX: 0,
+            deltaY: 10,
+            isDirectionInvertedFromDevice: false
+        )
+        let natural = transform.pannedByScrollDelta(
+            deltaX: 0,
+            deltaY: 10,
+            isDirectionInvertedFromDevice: true
+        )
+
+        XCTAssertEqual(traditional.offsetY, 10, accuracy: 0.0001)
+        XCTAssertEqual(natural.offsetY, -10, accuracy: 0.0001)
+    }
 }

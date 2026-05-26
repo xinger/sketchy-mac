@@ -84,9 +84,10 @@ final class DrawingCanvasView: NSView {
             )
         } else {
             updateViewport(
-                viewport.pannedBy(
+                viewport.pannedByScrollDelta(
                     deltaX: Double(event.scrollingDeltaX),
-                    deltaY: Double(event.scrollingDeltaY)
+                    deltaY: Double(event.scrollingDeltaY),
+                    isDirectionInvertedFromDevice: event.isDirectionInvertedFromDevice
                 )
             )
         }
