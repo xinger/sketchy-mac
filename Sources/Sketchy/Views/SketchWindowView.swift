@@ -122,28 +122,22 @@ struct SketchWindowView: View {
     }
 
     private var windowPinButton: some View {
-        VStack {
-            HStack {
-                Spacer()
-
-                Button {
-                    model.isPinned.toggle()
-                } label: {
-                    Image(systemName: model.isPinned ? "pin.fill" : "pin")
-                        .font(.system(size: 11, weight: .medium))
-                        .frame(width: 24, height: 24)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .foregroundColor(model.isPinned ? .accentColor : .primary.opacity(0.72))
-                .brightness(model.isPinned ? 0 : -0.04)
-                .help("Keep Above Other Windows")
-                .padding(.top, 10)
-                .padding(.trailing, 12)
-            }
-
-            Spacer()
+        Button {
+            model.isPinned.toggle()
+        } label: {
+            Image(systemName: model.isPinned ? "pin.fill" : "pin")
+                .font(.system(size: 11, weight: .medium))
+                .frame(width: 24, height: 24)
+                .contentShape(Rectangle())
         }
+        .buttonStyle(.plain)
+        .foregroundColor(model.isPinned ? .accentColor : .primary.opacity(0.72))
+        .brightness(model.isPinned ? 0 : -0.04)
+        .help("Keep Above Other Windows")
+        .padding(.top, 9)
+        .padding(.trailing, 12)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+        .ignoresSafeArea(edges: .top)
         .zIndex(5)
     }
 
