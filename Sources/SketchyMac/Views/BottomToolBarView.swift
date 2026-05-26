@@ -9,7 +9,7 @@ struct BottomToolBarView: View {
     var onNewDrawing: () -> Void
 
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 0) {
             Button {
                 withAnimation(.easeOut(duration: 0.18)) {
                     isSidebarVisible.toggle()
@@ -22,7 +22,8 @@ struct BottomToolBarView: View {
             .help("Drawings")
 
             Divider()
-                .frame(height: 22)
+                .frame(height: 20)
+                .padding(.horizontal, 6)
 
             ForEach(BrushSize.allCases, id: \.rawValue) { size in
                 Button {
@@ -43,7 +44,8 @@ struct BottomToolBarView: View {
             .help("Dashed")
 
             Divider()
-                .frame(height: 22)
+                .frame(height: 20)
+                .padding(.horizontal, 6)
 
             ForEach(DrawingColor.palette, id: \.self) { color in
                 Button {
@@ -56,7 +58,8 @@ struct BottomToolBarView: View {
             }
 
             Divider()
-                .frame(height: 22)
+                .frame(height: 20)
+                .padding(.horizontal, 6)
 
             Button(action: onNewDrawing) {
                 Image(systemName: "plus")
@@ -76,14 +79,14 @@ struct BottomToolBarView: View {
         }
         .buttonStyle(.plain)
         .foregroundColor(.primary)
-        .padding(.horizontal, 10)
-        .frame(height: 44)
+        .padding(.horizontal, 8)
+        .frame(height: 40)
         .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .fill(Color(NSColor.controlBackgroundColor).opacity(0.94))
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .stroke(Color.primary.opacity(0.08), lineWidth: 1)
         )
         .shadow(color: Color.black.opacity(0.18), radius: 14, x: 0, y: 6)
@@ -97,17 +100,10 @@ private extension View {
 }
 
 private struct ToolButtonHitArea: ViewModifier {
-    @State private var isHovering = false
-
     func body(content: Content) -> some View {
         content
-            .frame(width: 32, height: 32)
+            .frame(width: 28, height: 40)
             .contentShape(Rectangle())
-            .overlay(
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .stroke(Color.white.opacity(isHovering ? 0.75 : 0), lineWidth: 1)
-            )
-            .onHover { isHovering = $0 }
     }
 }
 
