@@ -9,7 +9,6 @@ struct HistorySidebarView: View {
     var onSelect: (DrawingID) -> Void
     var onClose: () -> Void
     var onNewDrawing: () -> Void
-    var onHoverChange: (Bool) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -70,7 +69,6 @@ struct HistorySidebarView: View {
                 .frame(width: 1),
             alignment: .trailing
         )
-        .onHover(perform: onHoverChange)
     }
 }
 

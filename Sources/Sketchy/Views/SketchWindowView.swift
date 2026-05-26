@@ -5,7 +5,6 @@ import SketchyCore
 struct SketchWindowView: View {
     @StateObject private var model: SketchWindowModel
     @State private var window: NSWindow?
-    @State private var hoverHideWorkItem: DispatchWorkItem?
     @State private var isLeftEdgeHovering = false
     @State private var leftEdgeProximity: CGFloat = 0
     @State private var isRightEdgeHovering = false
@@ -33,7 +32,8 @@ struct SketchWindowView: View {
                     onBegin: model.beginStroke(at:),
                     onAppend: model.appendStrokePoint(_:),
                     onEnd: model.finishStroke,
-                    onInsertImage: model.insertImage(_:)
+                    onInsertImage: model.insertImage(_:),
+                    onCanvasMouseDown: hideSidebarFromCanvasClick
                 )
                 .background(Color.clear)
                 .onAppear {
@@ -55,8 +55,7 @@ struct SketchWindowView: View {
                     selectedID: model.drawing.id,
                     onSelect: model.selectDrawing(id:),
                     onClose: { setSidebarVisible(false) },
-                    onNewDrawing: model.newDrawing,
-                    onHoverChange: handleSidebarHover
+                    onNewDrawing: model.newDrawing
                 )
                 .offset(x: model.isSidebarVisible ? 0 : -168)
                 .opacity(model.isSidebarVisible ? 1 : 0)
@@ -203,21 +202,6 @@ struct SketchWindowView: View {
             isLeftEdgeHovering = isHovering
             leftEdgeProximity = isHovering ? proximity : 0
         }
-
-        if !isHovering {
-            scheduleSidebarHide()
-            return
-        }
-
-        cancelSidebarHide()
-    }
-
-    private func handleSidebarHover(_ isHovering: Bool) {
-        if isHovering {
-            cancelSidebarHide()
-        } else {
-            scheduleSidebarHide()
-        }
     }
 
     private func handleRightEdgeHover(_ isHovering: Bool, proximity: CGFloat) {
@@ -259,34 +243,22 @@ struct SketchWindowView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.16, execute: workItem)
     }
 
-    private func scheduleSidebarHide() {
-        hoverHideWorkItem?.cancel()
-
-        guard model.isSidebarVisible else {
-            return
-        }
-
-        let workItem = DispatchWorkItem {
-            setSidebarVisible(false)
-        }
-        hoverHideWorkItem = workItem
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.24, execute: workItem)
-    }
-
-    private func cancelSidebarHide() {
-        hoverHideWorkItem?.cancel()
-        hoverHideWorkItem = nil
-    }
-
     private func setSidebarVisible(_ isVisible: Bool) {
         if isVisible {
-            cancelSidebarHide()
             isLeftEdgeHovering = false
         }
 
         withAnimation(.easeOut(duration: 0.18)) {
             model.isSidebarVisible = isVisible
         }
+    }
+
+    private func hideSidebarFromCanvasClick() {
+        guard model.isSidebarVisible else {
+            return
+        }
+
+        setSidebarVisible(false)
     }
 
     private func configureWindow(_ window: NSWindow?) {

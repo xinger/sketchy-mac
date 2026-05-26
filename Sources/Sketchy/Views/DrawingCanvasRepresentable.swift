@@ -11,6 +11,7 @@ struct DrawingCanvasRepresentable: NSViewRepresentable {
     var onAppend: (DrawingPoint) -> Void
     var onEnd: () -> Void
     var onInsertImage: (DrawingImage) -> Void
+    var onCanvasMouseDown: () -> Void
 
     func makeNSView(context: Context) -> DrawingCanvasView {
         let view = DrawingCanvasView()
@@ -18,6 +19,7 @@ struct DrawingCanvasRepresentable: NSViewRepresentable {
         view.onAppend = onAppend
         view.onEnd = onEnd
         view.onInsertImage = onInsertImage
+        view.onCanvasMouseDown = onCanvasMouseDown
         view.onViewportChange = { viewport = $0 }
         return view
     }
@@ -31,6 +33,7 @@ struct DrawingCanvasRepresentable: NSViewRepresentable {
         nsView.onAppend = onAppend
         nsView.onEnd = onEnd
         nsView.onInsertImage = onInsertImage
+        nsView.onCanvasMouseDown = onCanvasMouseDown
         nsView.onViewportChange = { viewport = $0 }
         nsView.needsDisplay = true
     }
@@ -50,6 +53,7 @@ final class DrawingCanvasView: NSView {
     var onAppend: ((DrawingPoint) -> Void)?
     var onEnd: (() -> Void)?
     var onInsertImage: ((DrawingImage) -> Void)?
+    var onCanvasMouseDown: (() -> Void)?
     var onViewportChange: ((ViewportTransform) -> Void)?
     private var renderedImageCache: [UUID: NSImage] = [:]
 
@@ -84,6 +88,7 @@ final class DrawingCanvasView: NSView {
 
     override func mouseDown(with event: NSEvent) {
         window?.makeFirstResponder(self)
+        onCanvasMouseDown?()
         onBegin?(worldPoint(from: event))
     }
 
