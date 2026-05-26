@@ -28,6 +28,30 @@ final class SVGDocumentTests: XCTestCase {
         XCTAssertTrue(svg.contains("stroke-dasharray=\"12 12\""))
     }
 
+    func testSolidStrokeIsPersistedAsFilledFreehandPath() {
+        let drawing = Drawing(
+            id: DrawingID(rawValue: UUID(uuidString: "77777777-7777-7777-7777-777777777777")!),
+            updatedAt: Date(timeIntervalSince1970: 40),
+            strokes: [
+                DrawingStroke(
+                    points: [
+                        DrawingPoint(x: 0, y: 0),
+                        DrawingPoint(x: 20, y: 0),
+                        DrawingPoint(x: 40, y: 10)
+                    ],
+                    color: .paletteRed,
+                    width: .medium,
+                    isDashed: false
+                )
+            ]
+        )
+
+        let svg = SVGDocument.encode(drawing: drawing, canvasSize: CanvasSize(width: 100, height: 100))
+
+        XCTAssertTrue(svg.contains("fill=\"#FF5A5F\""))
+        XCTAssertFalse(svg.contains("stroke-width=\"4\""))
+    }
+
     func testSVGDocumentDecodesEmbeddedDrawingMetadata() throws {
         let drawing = Drawing(
             id: DrawingID(rawValue: UUID(uuidString: "33333333-3333-3333-3333-333333333333")!),

@@ -6,6 +6,7 @@ struct SketchWindowView: View {
     @StateObject private var model: SketchWindowModel
     @State private var window: NSWindow?
     @State private var hoverRevealWorkItem: DispatchWorkItem?
+    @State private var viewport = ViewportTransform()
 
     init(store: DrawingLibraryStore) {
         _model = StateObject(wrappedValue: SketchWindowModel(store: store))
@@ -20,6 +21,7 @@ struct SketchWindowView: View {
                 DrawingCanvasRepresentable(
                     strokes: model.displayedStrokes,
                     activeStrokeID: model.activeStroke?.id,
+                    viewport: $viewport,
                     onBegin: model.beginStroke(at:),
                     onAppend: model.appendStrokePoint(_:),
                     onEnd: model.finishStroke

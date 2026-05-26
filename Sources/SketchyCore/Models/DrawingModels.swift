@@ -138,3 +138,9 @@ public struct ToolState: Codable, Equatable, Sendable {
         self.isDashed = isDashed
     }
 }
+
+public extension DrawingPoint {
+    static func distance(_ first: DrawingPoint, _ second: DrawingPoint) -> Double {
+        hypot(first.x - second.x, first.y - second.y)
+    }
+}

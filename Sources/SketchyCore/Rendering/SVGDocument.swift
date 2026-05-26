@@ -42,6 +42,12 @@ public enum SVGDocument {
     }
 
     private static func pathElement(for stroke: DrawingStroke) -> String {
+        if !stroke.isDashed {
+            return """
+            <path d="\(escape(FreehandStrokeRenderer.outlinePath(for: stroke)))" fill="\(escape(stroke.color.hex))"/>
+            """
+        }
+
         let dashAttribute: String
         if stroke.isDashed {
             let dash = stroke.width.lineWidth * 2
