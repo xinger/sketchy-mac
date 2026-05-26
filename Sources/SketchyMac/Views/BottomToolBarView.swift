@@ -16,6 +16,7 @@ struct BottomToolBarView: View {
                 }
             } label: {
                 Image(systemName: "sidebar.left")
+                    .font(.system(size: 16, weight: .regular))
                     .toolButtonHitArea()
             }
             .help("Drawings")
@@ -59,6 +60,7 @@ struct BottomToolBarView: View {
 
             Button(action: onNewDrawing) {
                 Image(systemName: "plus")
+                    .font(.system(size: 15, weight: .regular))
                     .toolButtonHitArea()
             }
             .help("New Drawing")
@@ -67,6 +69,7 @@ struct BottomToolBarView: View {
                 isPinned.toggle()
             } label: {
                 Image(systemName: isPinned ? "pin.fill" : "pin")
+                    .font(.system(size: 15, weight: .regular))
                     .toolButtonHitArea()
             }
             .help("Keep Above Other Windows")
@@ -98,11 +101,11 @@ private struct ToolButtonHitArea: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .frame(width: 32, height: 44)
+            .frame(width: 32, height: 32)
             .contentShape(Rectangle())
-            .background(
+            .overlay(
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(Color.primary.opacity(isHovering ? 0.07 : 0))
+                    .stroke(Color.primary.opacity(isHovering ? 0.18 : 0), lineWidth: 1)
             )
             .onHover { isHovering = $0 }
     }
@@ -116,23 +119,23 @@ private struct BrushSizeDot: View {
         ZStack {
             Circle()
                 .stroke(isSelected ? Color.accentColor : Color.clear, lineWidth: 2)
-                .frame(width: 24, height: 24)
+                .frame(width: 22, height: 22)
 
             Circle()
                 .fill(Color.primary)
                 .frame(width: dotDiameter, height: dotDiameter)
         }
-        .frame(width: 24, height: 24)
+        .frame(width: 22, height: 22)
     }
 
     private var dotDiameter: CGFloat {
         switch size {
         case .small:
-            return 5
+            return 4
         case .medium:
-            return 10
+            return 8
         case .large:
-            return 16
+            return 14
         }
     }
 }
@@ -146,7 +149,7 @@ private struct DashedToggleIcon: View {
                 isSelected ? Color.accentColor : Color.primary,
                 style: StrokeStyle(lineWidth: 2, dash: [5, 4])
             )
-            .frame(width: 22, height: 22)
+            .frame(width: 20, height: 20)
             .overlay(
                 Circle()
                     .stroke(Color.accentColor.opacity(isSelected ? 0.35 : 0), lineWidth: 6)
@@ -161,7 +164,7 @@ private struct ColorSwatch: View {
     var body: some View {
         Circle()
             .fill(Color(sketchyColor: color))
-            .frame(width: 22, height: 22)
+            .frame(width: 20, height: 20)
             .overlay(
                 Circle()
                     .stroke(Color.primary.opacity(0.15), lineWidth: 1)
