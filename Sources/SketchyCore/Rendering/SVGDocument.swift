@@ -8,14 +8,13 @@ public enum SVGDocument {
 
     public static func encode(drawing: Drawing, canvasSize: CanvasSize) -> String {
         let metadata = metadataElement(for: drawing)
-        let paths = drawing.strokes
-            .map(pathElement(for:))
-            .joined(separator: "\n  ")
+        let images = drawing.images.map(imageElement(for:))
+        let paths = drawing.strokes.map(pathElement(for:))
+        let content = ([metadata] + images + paths).joined(separator: "\n  ")
 
         return """
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 \(attribute(canvasSize.width)) \(attribute(canvasSize.height))">
-          \(metadata)
-          \(paths)
+          \(content)
         </svg>
         """
     }
@@ -58,6 +57,14 @@ public enum SVGDocument {
 
         return """
         <path d="\(escape(StrokeSmoother.finalPath(for: stroke)))" fill="none" stroke="\(escape(stroke.color.hex))" stroke-width="\(attribute(stroke.width.lineWidth))" stroke-linecap="round" stroke-linejoin="round"\(dashAttribute)/>
+        """
+    }
+
+    private static func imageElement(for image: DrawingImage) -> String {
+        let href = "data:\(image.mimeType);base64,\(image.data.base64EncodedString())"
+
+        return """
+        <image href="\(escape(href))" x="\(attribute(image.frame.x))" y="\(attribute(image.frame.y))" width="\(attribute(image.frame.width))" height="\(attribute(image.frame.height))" preserveAspectRatio="none"/>
         """
     }
 

@@ -20,12 +20,14 @@ struct SketchWindowView: View {
                     .ignoresSafeArea()
 
                 DrawingCanvasRepresentable(
+                    images: model.drawing.images,
                     strokes: model.displayedStrokes,
                     activeStrokeID: model.activeStroke?.id,
                     viewport: $viewport,
                     onBegin: model.beginStroke(at:),
                     onAppend: model.appendStrokePoint(_:),
-                    onEnd: model.finishStroke
+                    onEnd: model.finishStroke,
+                    onInsertImage: model.insertImage(_:)
                 )
                 .background(Color.clear)
                 .onAppear {

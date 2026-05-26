@@ -76,4 +76,60 @@ final class SVGDocumentTests: XCTestCase {
 
         XCTAssertEqual(decoded, drawing)
     }
+
+    func testSVGDocumentContainsEmbeddedImagesBeforeStrokes() {
+        let image = DrawingImage(
+            id: UUID(uuidString: "55555555-5555-5555-5555-555555555555")!,
+            data: Data([0x89, 0x50, 0x4E, 0x47]),
+            mimeType: "image/png",
+            frame: DrawingImageFrame(x: 10, y: 20, width: 120, height: 80)
+        )
+        let drawing = Drawing(
+            id: DrawingID(rawValue: UUID(uuidString: "66666666-6666-6666-6666-666666666666")!),
+            updatedAt: Date(timeIntervalSince1970: 30),
+            strokes: [
+                DrawingStroke(
+                    points: [DrawingPoint(x: 0, y: 0), DrawingPoint(x: 10, y: 10)],
+                    color: .paletteBlue,
+                    width: .medium,
+                    isDashed: false
+                )
+            ],
+            images: [image]
+        )
+
+        let svg = SVGDocument.encode(drawing: drawing, canvasSize: CanvasSize(width: 300, height: 200))
+
+        XCTAssertTrue(svg.contains("<image"))
+        XCTAssertTrue(svg.contains("href=\"data:image/png;base64,iVBORw==\""))
+        XCTAssertTrue(svg.contains("x=\"10\""))
+        XCTAssertTrue(svg.contains("y=\"20\""))
+        XCTAssertTrue(svg.contains("width=\"120\""))
+        XCTAssertTrue(svg.contains("height=\"80\""))
+        let imageOffset = svg.distance(from: svg.startIndex, to: svg.range(of: "<image")!.lowerBound)
+        let pathOffset = svg.distance(from: svg.startIndex, to: svg.range(of: "<path")!.lowerBound)
+        XCTAssertLessThan(imageOffset, pathOffset)
+    }
+
+    func testDrawingDecodesMetadataWithoutImagesAsEmptyImages() throws {
+        let id = "88888888-8888-8888-8888-888888888888"
+        let json = """
+        {
+          "id": { "rawValue": "\(id)" },
+          "updatedAt": 0,
+          "strokes": []
+        }
+        """
+        let encoded = Data(json.utf8).base64EncodedString()
+        let svg = """
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+          <metadata id="sketchy-data">\(encoded)</metadata>
+        </svg>
+        """
+
+        let decoded = try SVGDocument.decodeDrawing(from: svg)
+
+        XCTAssertEqual(decoded.id, DrawingID(rawValue: UUID(uuidString: id)!))
+        XCTAssertTrue(decoded.images.isEmpty)
+    }
 }

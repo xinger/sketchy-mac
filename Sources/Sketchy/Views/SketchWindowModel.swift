@@ -79,6 +79,12 @@ final class SketchWindowModel: ObservableObject {
         scheduleAutosave()
     }
 
+    func insertImage(_ image: DrawingImage) {
+        drawing.images.append(image)
+        drawing.updatedAt = Date()
+        scheduleAutosave()
+    }
+
     func newDrawing() {
         flushAutosave()
         drawing = Drawing(updatedAt: Date())

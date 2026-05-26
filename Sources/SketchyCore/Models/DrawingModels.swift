@@ -95,19 +95,78 @@ public struct DrawingStroke: Codable, Equatable, Identifiable, Sendable {
     }
 }
 
+public struct DrawingImageFrame: Codable, Equatable, Sendable {
+    public var x: Double
+    public var y: Double
+    public var width: Double
+    public var height: Double
+
+    public init(x: Double, y: Double, width: Double, height: Double) {
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+    }
+}
+
+public struct DrawingImage: Codable, Equatable, Identifiable, Sendable {
+    public var id: UUID
+    public var data: Data
+    public var mimeType: String
+    public var frame: DrawingImageFrame
+
+    public init(
+        id: UUID = UUID(),
+        data: Data,
+        mimeType: String,
+        frame: DrawingImageFrame
+    ) {
+        self.id = id
+        self.data = data
+        self.mimeType = mimeType
+        self.frame = frame
+    }
+}
+
 public struct Drawing: Codable, Equatable, Identifiable, Sendable {
     public var id: DrawingID
     public var updatedAt: Date
     public var strokes: [DrawingStroke]
+    public var images: [DrawingImage]
 
     public init(
         id: DrawingID = DrawingID(),
         updatedAt: Date = Date(),
-        strokes: [DrawingStroke] = []
+        strokes: [DrawingStroke] = [],
+        images: [DrawingImage] = []
     ) {
         self.id = id
         self.updatedAt = updatedAt
         self.strokes = strokes
+        self.images = images
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case updatedAt
+        case strokes
+        case images
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(DrawingID.self, forKey: .id)
+        updatedAt = try container.decode(Date.self, forKey: .updatedAt)
+        strokes = try container.decode([DrawingStroke].self, forKey: .strokes)
+        images = try container.decodeIfPresent([DrawingImage].self, forKey: .images) ?? []
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(updatedAt, forKey: .updatedAt)
+        try container.encode(strokes, forKey: .strokes)
+        try container.encode(images, forKey: .images)
     }
 }
 
