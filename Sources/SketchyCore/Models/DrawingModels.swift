@@ -40,11 +40,11 @@ public struct DrawingColor: Codable, Equatable, Hashable, Sendable {
     }
 
     public static let paletteInk = DrawingColor(name: "Ink", hex: "#F4F4F5")
-    public static let paletteBlue = DrawingColor(name: "Blue", hex: "#2D7DD2")
-    public static let paletteRed = DrawingColor(name: "Red", hex: "#FF5A5F")
-    public static let paletteYellow = DrawingColor(name: "Yellow", hex: "#FFE66D")
-    public static let paletteOcean = DrawingColor(name: "Ocean", hex: "#247BA0")
-    public static let paletteTeal = DrawingColor(name: "Teal", hex: "#19C8BE")
+    public static let paletteBlue = DrawingColor(name: "Blue", hex: "#2563EB")
+    public static let paletteRed = DrawingColor(name: "Red", hex: "#EF4444")
+    public static let paletteYellow = DrawingColor(name: "Amber", hex: "#F59E0B")
+    public static let paletteOcean = DrawingColor(name: "Green", hex: "#16A34A")
+    public static let paletteTeal = DrawingColor(name: "Teal", hex: "#14B8A6")
 
     public static let palette: [DrawingColor] = [
         .paletteInk,

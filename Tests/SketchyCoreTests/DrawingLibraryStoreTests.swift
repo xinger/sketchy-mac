@@ -24,7 +24,7 @@ final class DrawingLibraryStoreTests: XCTestCase {
         let summaries = try store.loadIndex()
         XCTAssertEqual(summaries.map(\.id), [drawing.id])
         let svg = try String(contentsOf: store.svgURL(for: drawing.id), encoding: .utf8)
-        XCTAssertTrue(svg.contains("#19C8BE"))
+        XCTAssertTrue(svg.contains("#14B8A6"))
     }
 
     func testLoadDrawingDecodesSavedSVGMetadata() throws {

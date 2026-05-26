@@ -38,8 +38,8 @@ struct BottomToolBarView: View {
             Button {
                 toolState.isDashed.toggle()
             } label: {
-                DashedToggleIcon(isSelected: toolState.isDashed)
-                    .toolButtonHitArea()
+                    DashedToggleIcon(isSelected: toolState.isDashed)
+                        .toolButtonHitArea()
             }
             .help("Dashed")
 
@@ -100,10 +100,14 @@ private extension View {
 }
 
 private struct ToolButtonHitArea: ViewModifier {
+    @State private var isHovering = false
+
     func body(content: Content) -> some View {
         content
             .frame(width: 28, height: 40)
             .contentShape(Rectangle())
+            .brightness(isHovering ? 0.16 : 0)
+            .onHover { isHovering = $0 }
     }
 }
 
@@ -114,11 +118,7 @@ private struct BrushSizeDot: View {
     var body: some View {
         ZStack {
             Circle()
-                .stroke(isSelected ? Color.accentColor : Color.clear, lineWidth: 2)
-                .frame(width: 22, height: 22)
-
-            Circle()
-                .fill(Color.primary)
+                .fill(isSelected ? Color.accentColor : Color.primary)
                 .frame(width: dotDiameter, height: dotDiameter)
         }
         .frame(width: 22, height: 22)
@@ -160,15 +160,15 @@ private struct ColorSwatch: View {
     var body: some View {
         Circle()
             .fill(Color(sketchyColor: color))
-            .frame(width: 20, height: 20)
+            .frame(width: 18, height: 18)
             .overlay(
                 Circle()
                     .stroke(Color.primary.opacity(0.15), lineWidth: 1)
             )
             .overlay(
                 Circle()
-                    .stroke(Color.accentColor, lineWidth: isSelected ? 3 : 0)
-                    .padding(-4)
+                    .stroke(Color.accentColor, lineWidth: isSelected ? 2 : 0)
+                    .padding(-3)
             )
     }
 }

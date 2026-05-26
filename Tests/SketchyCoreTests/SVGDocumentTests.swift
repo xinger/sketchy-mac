@@ -23,7 +23,7 @@ final class SVGDocumentTests: XCTestCase {
 
         XCTAssertTrue(svg.contains("<svg"))
         XCTAssertTrue(svg.contains("viewBox=\"0 0 800 600\""))
-        XCTAssertTrue(svg.contains("stroke=\"#2D7DD2\""))
+        XCTAssertTrue(svg.contains("stroke=\"#2563EB\""))
         XCTAssertTrue(svg.contains("stroke-width=\"6\""))
         XCTAssertTrue(svg.contains("stroke-dasharray=\"12 12\""))
     }
@@ -48,7 +48,7 @@ final class SVGDocumentTests: XCTestCase {
 
         let svg = SVGDocument.encode(drawing: drawing, canvasSize: CanvasSize(width: 100, height: 100))
 
-        XCTAssertTrue(svg.contains("fill=\"#FF5A5F\""))
+        XCTAssertTrue(svg.contains("fill=\"#EF4444\""))
         XCTAssertFalse(svg.contains("stroke-width=\"4\""))
     }
 
