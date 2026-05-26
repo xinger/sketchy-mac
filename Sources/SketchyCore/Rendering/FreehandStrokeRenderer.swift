@@ -118,7 +118,7 @@ public enum FreehandStrokeRenderer {
             center: first,
             direction: DrawingPoint(x: -firstDirection.x, y: -firstDirection.y),
             radius: firstRadius,
-            fromLeftToRight: false
+            fromLeftToRight: true
         )
         let endCap = capPoints(
             center: last,
@@ -127,7 +127,7 @@ public enum FreehandStrokeRenderer {
             fromLeftToRight: true
         )
 
-        return startCap + left.dropFirst() + endCap + right.dropLast().reversed()
+        return left + endCap.dropFirst() + right.dropLast().reversed() + startCap.dropFirst()
     }
 
     private static func capPoints(

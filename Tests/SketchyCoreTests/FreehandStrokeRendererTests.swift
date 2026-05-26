@@ -56,4 +56,22 @@ final class FreehandStrokeRendererTests: XCTestCase {
         XCTAssertTrue(outline.contains { $0.x > 60 })
         XCTAssertFalse(outline.contains { abs($0.x - 60) < 0.0001 && abs($0.y) < 0.0001 })
     }
+
+    func testOutlineStartsOnLeftSideAndEndsWithStartCap() {
+        let stroke = DrawingStroke(
+            points: [
+                DrawingPoint(x: 60, y: 0),
+                DrawingPoint(x: 30, y: 0),
+                DrawingPoint(x: 0, y: 0)
+            ],
+            color: .paletteBlue,
+            width: .large,
+            isDashed: false
+        )
+
+        let outline = FreehandStrokeRenderer.outlinePoints(for: stroke)
+
+        XCTAssertLessThan(outline[0].y, 0)
+        XCTAssertTrue(outline.suffix(5).contains { $0.x > 60 })
+    }
 }

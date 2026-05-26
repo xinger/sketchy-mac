@@ -40,18 +40,19 @@ struct SketchWindowView: View {
 
                 leftHoverStrip
 
-                if model.isSidebarVisible {
-                    HistorySidebarView(
-                        summaries: model.summaries,
-                        cachedDrawings: model.cachedDrawings,
-                        selectedID: model.drawing.id,
-                        onSelect: model.selectDrawing(id:),
-                        onClose: { setSidebarVisible(false) },
-                        onNewDrawing: model.newDrawing,
-                        onHoverChange: handleSidebarHover
-                    )
-                    .transition(.move(edge: .leading).combined(with: .opacity))
-                }
+                HistorySidebarView(
+                    summaries: model.summaries,
+                    cachedDrawings: model.cachedDrawings,
+                    selectedID: model.drawing.id,
+                    onSelect: model.selectDrawing(id:),
+                    onClose: { setSidebarVisible(false) },
+                    onNewDrawing: model.newDrawing,
+                    onHoverChange: handleSidebarHover
+                )
+                .offset(x: model.isSidebarVisible ? 0 : -168)
+                .opacity(model.isSidebarVisible ? 1 : 0)
+                .allowsHitTesting(model.isSidebarVisible)
+                .zIndex(3)
 
                 VStack {
                     Spacer()
@@ -68,6 +69,7 @@ struct SketchWindowView: View {
                     .padding(.bottom, 28)
                 }
                 .frame(maxWidth: .infinity)
+                .zIndex(4)
             }
             .animation(.easeOut(duration: 0.18), value: model.isSidebarVisible)
         }
@@ -94,6 +96,7 @@ struct SketchWindowView: View {
         Color.clear
             .frame(width: 24)
             .contentShape(Rectangle())
+            .zIndex(2)
             .onHover { isHovering in
                 handleLeftEdgeHover(isHovering)
             }
