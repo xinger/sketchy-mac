@@ -70,7 +70,7 @@ struct SketchWindowView: View {
                     BottomToolBarView(
                         toolState: $model.toolState
                     )
-                    .padding(.bottom, 28)
+                    .padding(.bottom, 16)
                 }
                 .frame(maxWidth: .infinity)
                 .zIndex(4)

@@ -43,11 +43,11 @@ struct BottomToolBarView: View {
         .padding(.horizontal, 8)
         .frame(height: 40)
         .background(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .fill(Color(NSColor.controlBackgroundColor).opacity(0.94))
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .stroke(Color.primary.opacity(0.08), lineWidth: 1)
         )
         .shadow(color: Color.black.opacity(0.18), radius: 14, x: 0, y: 6)
