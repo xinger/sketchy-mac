@@ -57,6 +57,27 @@ final class FreehandStrokeRendererTests: XCTestCase {
         XCTAssertFalse(outline.contains { abs($0.x - 60) < 0.0001 && abs($0.y) < 0.0001 })
     }
 
+    func testSparseFastCurvesProduceDenseRoundedOutline() {
+        let stroke = DrawingStroke(
+            points: [
+                DrawingPoint(x: 0, y: 0),
+                DrawingPoint(x: 90, y: 74),
+                DrawingPoint(x: 180, y: 0)
+            ],
+            color: .paletteBlue,
+            width: .large,
+            isDashed: false
+        )
+
+        let outline = FreehandStrokeRenderer.outlinePoints(for: stroke)
+        let longestVisibleSection = zip(outline, outline.dropFirst())
+            .map(DrawingPoint.distance)
+            .max() ?? 0
+
+        XCTAssertGreaterThan(outline.count, 40)
+        XCTAssertLessThan(longestVisibleSection, 24)
+    }
+
     func testOutlineStartsOnLeftSideAndEndsWithStartCap() {
         let stroke = DrawingStroke(
             points: [

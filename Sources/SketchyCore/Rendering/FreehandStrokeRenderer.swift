@@ -47,7 +47,11 @@ public enum FreehandStrokeRenderer {
     }
 
     private static func outlinePoints(points rawPoints: [DrawingPoint], baseWidth: Double) -> [DrawingPoint] {
-        let points = streamlined(rawPoints, amount: 0.45)
+        let streamlinedPoints = streamlined(rawPoints, amount: 0.45)
+        let points = sampledCurve(
+            points: streamlinedPoints,
+            maxSegmentLength: max(5, baseWidth * 1.1)
+        )
 
         guard points.count > 1 else {
             guard let point = points.first else {
@@ -174,6 +178,57 @@ public enum FreehandStrokeRenderer {
         }
 
         return result
+    }
+
+    private static func sampledCurve(
+        points: [DrawingPoint],
+        maxSegmentLength: Double
+    ) -> [DrawingPoint] {
+        guard points.count > 2 else {
+            return points
+        }
+
+        var result = [points[0]]
+
+        for index in 0..<(points.count - 1) {
+            let p0 = points[max(0, index - 1)]
+            let p1 = points[index]
+            let p2 = points[index + 1]
+            let p3 = points[min(points.count - 1, index + 2)]
+            let distance = DrawingPoint.distance(p1, p2)
+            let samples = max(1, Int(ceil(distance / maxSegmentLength)))
+
+            for step in 1...samples {
+                let t = Double(step) / Double(samples)
+                result.append(catmullRom(p0: p0, p1: p1, p2: p2, p3: p3, t: t))
+            }
+        }
+
+        return result
+    }
+
+    private static func catmullRom(
+        p0: DrawingPoint,
+        p1: DrawingPoint,
+        p2: DrawingPoint,
+        p3: DrawingPoint,
+        t: Double
+    ) -> DrawingPoint {
+        let t2 = t * t
+        let t3 = t2 * t
+
+        return DrawingPoint(
+            x: 0.5 * (
+                2 * p1.x + (-p0.x + p2.x) * t
+                    + (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t2
+                    + (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t3
+            ),
+            y: 0.5 * (
+                2 * p1.y + (-p0.y + p2.y) * t
+                    + (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t2
+                    + (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t3
+            )
+        )
     }
 
     private static func normalized(_ point: DrawingPoint) -> DrawingPoint {
