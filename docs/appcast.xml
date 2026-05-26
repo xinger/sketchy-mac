@@ -1,27 +1,15 @@
 <?xml version="1.0" standalone="yes"?>
 <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
     <channel>
-        <title>SketchyMac</title>
+        <title>Sketchy</title>
         <item>
             <title>1.1.1</title>
-            <pubDate>Tue, 26 May 2026 18:38:07 +0300</pubDate>
+            <pubDate>Tue, 26 May 2026 18:54:54 +0300</pubDate>
             <sparkle:version>2</sparkle:version>
             <sparkle:shortVersionString>1.1.1</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>11.0</sparkle:minimumSystemVersion>
             <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
-            <enclosure url="https://github.com/xinger/sketchy-mac/releases/download/v1.1.1/SketchyMac-1.1.1-2.zip" length="1459867" type="application/octet-stream" sparkle:edSignature="sL9Giph7V3LNrJVFlgtnjc6RXm+OhpovoYm3SRXiIRethDnNbxAZ6UlMgKpwmJYBN8uqOZetztj4YkqOsWcJBw=="/>
-            <sparkle:deltas>
-                <enclosure url="https://github.com/xinger/sketchy-mac/releases/download/v1.1.1/SketchyMac2-1.delta" sparkle:deltaFrom="1" length="850" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="977616" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="Tvbb9Q2zHH2AyCZYu7GeEGZ2/xtB9CE9Bfddob9BEHbtIuC8IMG1/WCrePENQMdRsFg5UbBk97jF6PZc62UHAQ=="/>
-            </sparkle:deltas>
-        </item>
-        <item>
-            <title>0.1.0</title>
-            <pubDate>Tue, 26 May 2026 17:35:33 +0300</pubDate>
-            <sparkle:version>1</sparkle:version>
-            <sparkle:shortVersionString>0.1.0</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>11.0</sparkle:minimumSystemVersion>
-            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
-            <enclosure url="https://github.com/xinger/sketchy-mac/releases/download/v1.1.1/SketchyMac-0.1.0-1.zip" length="1459865" type="application/octet-stream" sparkle:edSignature="GCfHqgaR+ZqWQOz71SRQmTYhoffZqcoQRiBplO43gOcYMknhFghq0tAfGyScj/UIztqxha7nnbeJWDfa8O3GDw=="/>
+            <enclosure url="https://github.com/xinger/sketchy-mac/releases/download/v1.1.1/Sketchy-1.1.1-2.zip" length="1457526" type="application/octet-stream" sparkle:edSignature="GXW9s7u87VlUmLmx7oqpujqvaA6Tih06wEnnw94PMzIsHyqTNxUTVxAHmev0E076pOArnF1A8TN6kAN7Y5BMCg=="/>
         </item>
     </channel>
 </rss>

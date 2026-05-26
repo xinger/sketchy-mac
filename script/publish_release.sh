@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-APP_NAME="SketchyMac"
+APP_NAME="Sketchy"
 REPO="${GITHUB_REPOSITORY:-xinger/sketchy-mac}"
 
 if [[ $# -lt 2 || $# -gt 3 ]]; then

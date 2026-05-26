@@ -67,8 +67,8 @@ build = sys.argv[3]
 text = path.read_text()
 
 text = re.sub(
-    r"https://github[.]com/xinger/sketchy-mac/releases/download/v[^/]+/SketchyMac-[^\"/]+[.]zip",
-    f"https://github.com/xinger/sketchy-mac/releases/download/v{version}/SketchyMac-{version}-{build}.zip",
+    r"https://github[.]com/xinger/sketchy-mac/releases/download/v[^/]+/(?:SketchyMac|Sketchy)-[^\"/]+[.]zip",
+    f"https://github.com/xinger/sketchy-mac/releases/download/v{version}/Sketchy-{version}-{build}.zip",
     text,
 )
 text = re.sub(

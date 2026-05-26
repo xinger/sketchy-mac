@@ -3,13 +3,13 @@
 import PackageDescription
 
 let package = Package(
-    name: "SketchyMac",
+    name: "Sketchy",
     platforms: [
         .macOS(.v11)
     ],
     products: [
         .library(name: "SketchyCore", targets: ["SketchyCore"]),
-        .executable(name: "SketchyMac", targets: ["SketchyMac"])
+        .executable(name: "Sketchy", targets: ["Sketchy"])
     ],
     dependencies: [
         .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.9.2")
@@ -17,7 +17,7 @@ let package = Package(
     targets: [
         .target(name: "SketchyCore"),
         .executableTarget(
-            name: "SketchyMac",
+            name: "Sketchy",
             dependencies: [
                 "SketchyCore",
                 .product(name: "Sparkle", package: "Sparkle")

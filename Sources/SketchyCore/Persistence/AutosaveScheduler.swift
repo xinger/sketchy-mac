@@ -10,7 +10,7 @@ public final class AutosaveScheduler {
 
     public init(
         interval: TimeInterval,
-        queue: DispatchQueue = DispatchQueue(label: "SketchyMac.AutosaveScheduler")
+        queue: DispatchQueue = DispatchQueue(label: "Sketchy.AutosaveScheduler")
     ) {
         self.interval = interval
         self.queue = queue

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-APP_NAME="SketchyMac"
+APP_NAME="Sketchy"
 
 if [[ $# -lt 2 || $# -gt 4 ]]; then
   echo "usage: $0 <version> <build> [download-url-prefix] [release-notes-file]" >&2

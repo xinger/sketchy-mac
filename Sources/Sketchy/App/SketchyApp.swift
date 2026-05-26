@@ -3,7 +3,7 @@ import Sparkle
 import SketchyCore
 
 @main
-struct SketchyMacApp: App {
+struct SketchyApp: App {
     private let store = DrawingLibraryStore()
     private let sparkleUpdater = SparkleUpdater()
 
@@ -30,5 +30,5 @@ struct SketchyMacApp: App {
 }
 
 extension Notification.Name {
-    static let newSketchyDrawingRequested = Notification.Name("SketchyMac.newDrawingRequested")
+    static let newSketchyDrawingRequested = Notification.Name("Sketchy.newDrawingRequested")
 }

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 MODE="${1:-run}"
-APP_NAME="SketchyMac"
+APP_NAME="Sketchy"
 BUNDLE_ID="com.xinger.SketchyMac"
 MIN_SYSTEM_VERSION="11.0"
 APP_VERSION="${SKETCHY_VERSION:-0.1.0}"
@@ -22,7 +22,7 @@ APP_BINARY="$APP_MACOS/$APP_NAME"
 INFO_PLIST="$APP_CONTENTS/Info.plist"
 PACKAGE_DIR="$DIST_DIR/releases"
 ZIP_ARCHIVE="$PACKAGE_DIR/$APP_NAME-$APP_VERSION-$APP_BUILD.zip"
-SOURCE_RESOURCES="$ROOT_DIR/Sources/SketchyMac/Resources"
+SOURCE_RESOURCES="$ROOT_DIR/Sources/Sketchy/Resources"
 
 export CLANG_MODULE_CACHE_PATH="${CLANG_MODULE_CACHE_PATH:-$ROOT_DIR/.build/clang-module-cache}"
 mkdir -p "$CLANG_MODULE_CACHE_PATH"
@@ -71,6 +71,8 @@ write_info_plist() {
   <key>CFBundleIdentifier</key>
   <string>$BUNDLE_ID</string>
   <key>CFBundleName</key>
+  <string>$APP_NAME</string>
+  <key>CFBundleDisplayName</key>
   <string>$APP_NAME</string>
   <key>CFBundlePackageType</key>
   <string>APPL</string>

@@ -77,6 +77,6 @@ public struct DrawingLibraryStore: Sendable {
             in: .userDomainMask
         ).first ?? URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
 
-        return applicationSupport.appendingPathComponent("SketchyMac", isDirectory: true)
+        return applicationSupport.appendingPathComponent("Sketchy", isDirectory: true)
     }
 }
