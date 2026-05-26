@@ -30,7 +30,7 @@ struct HistorySidebarView: View {
             }
             .buttonStyle(.plain)
             .padding(.horizontal, 14)
-            .padding(.top, 14)
+            .padding(.top, 48)
 
             if summaries.isEmpty {
                 Spacer()
@@ -60,6 +60,7 @@ struct HistorySidebarView: View {
                 }
             }
         }
+        .frame(maxHeight: .infinity)
         .frame(width: 160)
         .background(Color(NSColor.windowBackgroundColor).opacity(0.96))
         .overlay(

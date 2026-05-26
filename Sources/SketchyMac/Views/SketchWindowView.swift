@@ -51,6 +51,7 @@ struct SketchWindowView: View {
                 )
                 .offset(x: model.isSidebarVisible ? 0 : -168)
                 .opacity(model.isSidebarVisible ? 1 : 0)
+                .ignoresSafeArea(edges: .vertical)
                 .allowsHitTesting(model.isSidebarVisible)
                 .zIndex(3)
 
