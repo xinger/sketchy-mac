@@ -74,7 +74,6 @@ struct SketchWindowView: View {
             }
             .animation(.easeOut(duration: 0.18), value: model.isSidebarVisible)
         }
-        .ignoresSafeArea(.container, edges: .top)
         .background(
             WindowAccessor { resolvedWindow in
                 window = resolvedWindow
@@ -172,9 +171,6 @@ struct SketchWindowView: View {
         window.titleVisibility = .hidden
         window.titlebarAppearsTransparent = true
         window.styleMask.insert(.fullSizeContentView)
-        window.isOpaque = false
-        window.backgroundColor = .clear
-        window.isMovableByWindowBackground = true
         window.toolbar = nil
     }
 
