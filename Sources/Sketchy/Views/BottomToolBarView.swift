@@ -4,7 +4,6 @@ import SketchyCore
 struct BottomToolBarView: View {
     @Binding var toolState: ToolState
     @Binding var isSidebarVisible: Bool
-    @Binding var isPinned: Bool
 
     var onNewDrawing: () -> Void
 
@@ -67,15 +66,6 @@ struct BottomToolBarView: View {
                     .toolButtonHitArea()
             }
             .help("New Drawing")
-
-            Button {
-                isPinned.toggle()
-            } label: {
-                Image(systemName: isPinned ? "pin.fill" : "pin")
-                    .font(.system(size: 15, weight: .regular))
-                    .toolButtonHitArea()
-            }
-            .help("Keep Above Other Windows")
         }
         .buttonStyle(.plain)
         .foregroundColor(.primary)

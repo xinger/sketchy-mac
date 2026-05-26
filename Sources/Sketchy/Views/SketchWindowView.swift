@@ -67,13 +67,14 @@ struct SketchWindowView: View {
                             get: { model.isSidebarVisible },
                             set: { setSidebarVisible($0) }
                         ),
-                        isPinned: $model.isPinned,
                         onNewDrawing: model.newDrawing
                     )
                     .padding(.bottom, 28)
                 }
                 .frame(maxWidth: .infinity)
                 .zIndex(4)
+
+                windowPinButton
             }
             .animation(.easeOut(duration: 0.18), value: model.isSidebarVisible)
         }
@@ -118,6 +119,32 @@ struct SketchWindowView: View {
             .onTapGesture {
                 setSidebarVisible(true)
             }
+    }
+
+    private var windowPinButton: some View {
+        VStack {
+            HStack {
+                Spacer()
+
+                Button {
+                    model.isPinned.toggle()
+                } label: {
+                    Image(systemName: model.isPinned ? "pin.fill" : "pin")
+                        .font(.system(size: 11, weight: .medium))
+                        .frame(width: 24, height: 24)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .foregroundColor(model.isPinned ? .accentColor : .primary.opacity(0.72))
+                .brightness(model.isPinned ? 0 : -0.04)
+                .help("Keep Above Other Windows")
+                .padding(.top, 10)
+                .padding(.trailing, 12)
+            }
+
+            Spacer()
+        }
+        .zIndex(5)
     }
 
     private func handleLeftEdgeHover(_ isHovering: Bool) {
