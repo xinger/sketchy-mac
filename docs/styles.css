@@ -183,7 +183,7 @@ h2 {
 }
 
 .icon-orbit {
-  width: min(72vw, 560px);
+  width: min(58vw, 448px);
   transform: rotate(-4deg);
   animation: float-icon 5.5s ease-in-out infinite;
 }
@@ -193,30 +193,6 @@ h2 {
   width: 100%;
   height: auto;
   filter: drop-shadow(0 42px 58px rgba(28, 105, 158, 0.22));
-}
-
-.hero-stroke {
-  position: absolute;
-  inset: auto 0 6% auto;
-  width: min(56vw, 640px);
-  opacity: 0.9;
-  pointer-events: none;
-}
-
-.hero-stroke path {
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.hero-stroke path:first-child {
-  stroke: var(--blue);
-  stroke-width: 34;
-}
-
-.hero-stroke path:last-child {
-  stroke: var(--blue-soft);
-  stroke-width: 14;
 }
 
 .feature-line {
@@ -337,11 +313,7 @@ code {
   }
 
   .icon-orbit {
-    width: min(72vw, 360px);
-  }
-
-  .hero-stroke {
-    width: min(82vw, 430px);
+    width: min(58vw, 288px);
   }
 
   .feature-line {
