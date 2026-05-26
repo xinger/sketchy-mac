@@ -2,6 +2,7 @@
 set -euo pipefail
 
 APPCAST_PATH="docs/appcast.xml"
+SITE_INDEX_PATH="docs/index.html"
 
 if [[ $# -lt 1 || $# -gt 2 ]]; then
   echo "usage: $0 <version> [release-notes-file]" >&2
@@ -55,10 +56,39 @@ BUILD="$(next_build_number)"
 "$ROOT_DIR/script/package_update.sh" "$VERSION" "$BUILD" "" "$RELEASE_NOTES_FILE"
 cp "$ROOT_DIR/dist/appcast/appcast.xml" "$APPCAST_PATH"
 
-if git diff --quiet -- "$APPCAST_PATH"; then
+python3 - "$SITE_INDEX_PATH" "$VERSION" "$BUILD" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+version = sys.argv[2]
+build = sys.argv[3]
+text = path.read_text()
+
+text = re.sub(
+    r"https://github[.]com/xinger/sketchy-mac/releases/download/v[^/]+/SketchyMac-[^\"/]+[.]zip",
+    f"https://github.com/xinger/sketchy-mac/releases/download/v{version}/SketchyMac-{version}-{build}.zip",
+    text,
+)
+text = re.sub(
+    r"https://github[.]com/xinger/sketchy-mac/releases/tag/v[^\"#?]+",
+    f"https://github.com/xinger/sketchy-mac/releases/tag/v{version}",
+    text,
+)
+text = re.sub(
+    r"Get Sketchy [0-9]+[.][0-9]+[.][0-9]+(?:[-+][0-9A-Za-z.-]+)?",
+    f"Get Sketchy {version}",
+    text,
+)
+
+path.write_text(text)
+PY
+
+if git diff --quiet -- "$APPCAST_PATH" "$SITE_INDEX_PATH"; then
   echo "$APPCAST_PATH is unchanged; no release commit needed"
 else
-  git add "$APPCAST_PATH"
+  git add "$APPCAST_PATH" "$SITE_INDEX_PATH"
   git commit -m "release: $VERSION"
 fi
 
