@@ -1,0 +1,15 @@
+<?xml version="1.0" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+    <channel>
+        <title>SketchyMac</title>
+        <item>
+            <title>0.1.0</title>
+            <pubDate>Tue, 26 May 2026 17:35:33 +0300</pubDate>
+            <sparkle:version>1</sparkle:version>
+            <sparkle:shortVersionString>0.1.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>11.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <enclosure url="https://github.com/xinger/sketchy-mac/releases/download/v0.1.0/SketchyMac-0.1.0-1.zip" length="1301088" type="application/octet-stream" sparkle:edSignature="RQr3XB9TWX1AjzlRl7ikJrYBxp5MoprbNtpR8oOGU23VYNre8/F1EtrjMd4/3QWG51XwbyCyJl80NjWx4e7kDQ=="/>
+        </item>
+    </channel>
+</rss>
