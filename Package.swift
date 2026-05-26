@@ -8,10 +8,12 @@ let package = Package(
         .macOS(.v11)
     ],
     products: [
-        .library(name: "SketchyCore", targets: ["SketchyCore"])
+        .library(name: "SketchyCore", targets: ["SketchyCore"]),
+        .executable(name: "SketchyMac", targets: ["SketchyMac"])
     ],
     targets: [
         .target(name: "SketchyCore"),
+        .executableTarget(name: "SketchyMac", dependencies: ["SketchyCore"]),
         .testTarget(name: "SketchyCoreTests", dependencies: ["SketchyCore"])
     ]
 )
