@@ -7,7 +7,9 @@ struct SketchWindowView: View {
     @State private var window: NSWindow?
     @State private var hoverHideWorkItem: DispatchWorkItem?
     @State private var isLeftEdgeHovering = false
+    @State private var leftEdgeProximity: CGFloat = 0
     @State private var isRightEdgeHovering = false
+    @State private var rightEdgeProximity: CGFloat = 0
     @State private var isRightEdgeClickFeedbackVisible = false
     @State private var isRightEdgeHoverSuppressed = false
     @State private var rightEdgeClickFeedbackWorkItem: DispatchWorkItem?
@@ -66,12 +68,7 @@ struct SketchWindowView: View {
                     Spacer()
 
                     BottomToolBarView(
-                        toolState: $model.toolState,
-                        isSidebarVisible: Binding(
-                            get: { model.isSidebarVisible },
-                            set: { setSidebarVisible($0) }
-                        ),
-                        onNewDrawing: model.newDrawing
+                        toolState: $model.toolState
                     )
                     .padding(.bottom, 28)
                 }
@@ -116,23 +113,24 @@ struct SketchWindowView: View {
 
             Image(systemName: "sidebar.left")
                 .font(.system(size: 13, weight: .regular))
-                .foregroundColor(.primary.opacity(0.34))
+                .foregroundColor(.primary.opacity(edgeCueOpacity(for: leftEdgeProximity)))
                 .frame(width: 24, height: 44)
                 .padding(.leading, 12)
                 .opacity(isLeftEdgeHovering && !model.isSidebarVisible ? 1 : 0)
                 .animation(.easeOut(duration: 0.12), value: isLeftEdgeHovering)
                 .animation(.easeOut(duration: 0.12), value: model.isSidebarVisible)
+
+            EdgeHoverTrackingView(
+                side: .left,
+                onHoverChange: handleLeftEdgeHover(_:proximity:),
+                onClick: { setSidebarVisible(true) }
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
             .frame(width: 36)
             .frame(maxHeight: .infinity)
             .contentShape(Rectangle())
             .zIndex(2)
-            .onHover { isHovering in
-                handleLeftEdgeHover(isHovering)
-            }
-            .onTapGesture {
-                setSidebarVisible(true)
-            }
     }
 
     private var rightNewDrawingHoverStrip: some View {
@@ -144,22 +142,27 @@ struct SketchWindowView: View {
 
                 Image(systemName: "plus")
                     .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(isRightEdgeClickFeedbackVisible ? .accentColor : .primary.opacity(0.34))
+                    .foregroundColor(
+                        isRightEdgeClickFeedbackVisible
+                            ? .accentColor
+                            : .primary.opacity(edgeCueOpacity(for: rightEdgeProximity))
+                    )
                     .frame(width: 24, height: 44)
                     .padding(.trailing, 12)
                     .opacity(shouldShowRightEdgePlus ? 1 : 0)
                     .animation(.easeOut(duration: 0.12), value: shouldShowRightEdgePlus)
                     .animation(.easeOut(duration: 0.08), value: isRightEdgeClickFeedbackVisible)
+
+                EdgeHoverTrackingView(
+                    side: .right,
+                    onHoverChange: handleRightEdgeHover(_:proximity:),
+                    onClick: handleRightEdgeTap
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .frame(width: 36)
             .frame(maxHeight: .infinity)
             .contentShape(Rectangle())
-            .onHover { isHovering in
-                handleRightEdgeHover(isHovering)
-            }
-            .onTapGesture {
-                handleRightEdgeTap()
-            }
             .help("New Drawing")
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -168,6 +171,11 @@ struct SketchWindowView: View {
 
     private var shouldShowRightEdgePlus: Bool {
         isRightEdgeClickFeedbackVisible || (isRightEdgeHovering && !isRightEdgeHoverSuppressed)
+    }
+
+    private func edgeCueOpacity(for proximity: CGFloat) -> Double {
+        let clamped = min(max(Double(proximity), 0), 1)
+        return 0.18 + (0.22 * clamped)
     }
 
     private var windowPinButton: some View {
@@ -190,9 +198,10 @@ struct SketchWindowView: View {
         .zIndex(5)
     }
 
-    private func handleLeftEdgeHover(_ isHovering: Bool) {
+    private func handleLeftEdgeHover(_ isHovering: Bool, proximity: CGFloat) {
         withAnimation(.easeOut(duration: 0.14)) {
             isLeftEdgeHovering = isHovering
+            leftEdgeProximity = isHovering ? proximity : 0
         }
 
         if !isHovering {
@@ -211,10 +220,11 @@ struct SketchWindowView: View {
         }
     }
 
-    private func handleRightEdgeHover(_ isHovering: Bool) {
+    private func handleRightEdgeHover(_ isHovering: Bool, proximity: CGFloat) {
         if isHovering {
             withAnimation(.easeOut(duration: 0.12)) {
                 isRightEdgeHovering = !isRightEdgeHoverSuppressed
+                rightEdgeProximity = proximity
             }
         } else {
             rightEdgeClickFeedbackWorkItem?.cancel()
@@ -224,6 +234,7 @@ struct SketchWindowView: View {
             withAnimation(.easeOut(duration: 0.12)) {
                 isRightEdgeHovering = false
                 isRightEdgeClickFeedbackVisible = false
+                rightEdgeProximity = 0
             }
         }
     }
@@ -292,5 +303,114 @@ struct SketchWindowView: View {
 
     private func applyWindowLevel(to window: NSWindow?) {
         window?.level = model.isPinned ? .floating : .normal
+    }
+}
+
+private enum EdgeCueSide {
+    case left
+    case right
+}
+
+private struct EdgeHoverTrackingView: NSViewRepresentable {
+    var side: EdgeCueSide
+    var onHoverChange: (Bool, CGFloat) -> Void
+    var onClick: () -> Void
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(
+            side: side,
+            onHoverChange: onHoverChange,
+            onClick: onClick
+        )
+    }
+
+    func makeNSView(context: Context) -> TrackingView {
+        TrackingView(coordinator: context.coordinator)
+    }
+
+    func updateNSView(_ nsView: TrackingView, context: Context) {
+        context.coordinator.side = side
+        context.coordinator.onHoverChange = onHoverChange
+        context.coordinator.onClick = onClick
+    }
+
+    final class Coordinator {
+        var side: EdgeCueSide
+        var onHoverChange: (Bool, CGFloat) -> Void
+        var onClick: () -> Void
+
+        init(
+            side: EdgeCueSide,
+            onHoverChange: @escaping (Bool, CGFloat) -> Void,
+            onClick: @escaping () -> Void
+        ) {
+            self.side = side
+            self.onHoverChange = onHoverChange
+            self.onClick = onClick
+        }
+    }
+
+    final class TrackingView: NSView {
+        private var trackingArea: NSTrackingArea?
+        private let coordinator: Coordinator
+
+        init(coordinator: Coordinator) {
+            self.coordinator = coordinator
+            super.init(frame: .zero)
+        }
+
+        @available(*, unavailable)
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
+        override func updateTrackingAreas() {
+            super.updateTrackingAreas()
+
+            if let trackingArea {
+                removeTrackingArea(trackingArea)
+            }
+
+            let trackingArea = NSTrackingArea(
+                rect: bounds,
+                options: [.activeInActiveApp, .inVisibleRect, .mouseEnteredAndExited, .mouseMoved],
+                owner: self,
+                userInfo: nil
+            )
+            addTrackingArea(trackingArea)
+            self.trackingArea = trackingArea
+        }
+
+        override func mouseEntered(with event: NSEvent) {
+            updateHover(with: event)
+        }
+
+        override func mouseMoved(with event: NSEvent) {
+            updateHover(with: event)
+        }
+
+        override func mouseExited(with event: NSEvent) {
+            coordinator.onHoverChange(false, 0)
+        }
+
+        override func mouseDown(with event: NSEvent) {
+            coordinator.onClick()
+        }
+
+        private func updateHover(with event: NSEvent) {
+            let location = convert(event.locationInWindow, from: nil)
+            let width = max(bounds.width, 1)
+            let rawProximity: CGFloat
+
+            switch coordinator.side {
+            case .left:
+                rawProximity = 1 - (location.x / width)
+            case .right:
+                rawProximity = location.x / width
+            }
+
+            let proximity = min(max(rawProximity, 0), 1)
+            coordinator.onHoverChange(true, proximity)
+        }
     }
 }

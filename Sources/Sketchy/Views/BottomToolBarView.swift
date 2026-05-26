@@ -3,27 +3,9 @@ import SketchyCore
 
 struct BottomToolBarView: View {
     @Binding var toolState: ToolState
-    @Binding var isSidebarVisible: Bool
-
-    var onNewDrawing: () -> Void
 
     var body: some View {
         HStack(spacing: 0) {
-            Button {
-                withAnimation(.easeOut(duration: 0.18)) {
-                    isSidebarVisible.toggle()
-                }
-            } label: {
-                Image(systemName: "sidebar.left")
-                    .font(.system(size: 16, weight: .regular))
-                    .toolButtonHitArea()
-            }
-            .help("Drawings")
-
-            Divider()
-                .frame(height: 20)
-                .padding(.horizontal, 6)
-
             ForEach(BrushSize.allCases, id: \.rawValue) { size in
                 Button {
                     toolState.brushSize = size
@@ -55,17 +37,6 @@ struct BottomToolBarView: View {
                 }
                 .help(color.name)
             }
-
-            Divider()
-                .frame(height: 20)
-                .padding(.horizontal, 6)
-
-            Button(action: onNewDrawing) {
-                Image(systemName: "plus")
-                    .font(.system(size: 15, weight: .regular))
-                    .toolButtonHitArea()
-            }
-            .help("New Drawing")
         }
         .buttonStyle(.plain)
         .foregroundColor(.primary)
