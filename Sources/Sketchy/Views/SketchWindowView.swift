@@ -115,6 +115,9 @@ struct SketchWindowView: View {
             .onHover { isHovering in
                 handleLeftEdgeHover(isHovering)
             }
+            .onTapGesture {
+                setSidebarVisible(true)
+            }
     }
 
     private func handleLeftEdgeHover(_ isHovering: Bool) {
