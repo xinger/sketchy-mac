@@ -1,0 +1,4 @@
+interface:
+  display_name: "macOS Sparkle Release"
+  short_description: "Sparkle, GitHub releases, and DMG setup"
+  default_prompt: "Use $macos-sparkle-github-release to add Sparkle updates, GitHub release publishing, and a custom DMG installer to this macOS app."
