@@ -14,10 +14,20 @@ final class SketchWindowModel: ObservableObject {
     private let store: DrawingLibraryStore
     private let autosaveScheduler = AutosaveScheduler(interval: 0.5)
     private var canvasSize = CanvasSize(width: 900, height: 650)
+    private var cancellables = Set<AnyCancellable>()
 
     init(store: DrawingLibraryStore) {
         self.store = store
         drawing = Drawing(updatedAt: Date())
+
+        NotificationCenter.default.publisher(for: .sketchyDrawingLibraryDidChange)
+            .compactMap { $0.object as? URL }
+            .filter { $0 == store.rootDirectory }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.reloadSummaries()
+            }
+            .store(in: &cancellables)
 
         reloadSummaries()
     }
@@ -119,14 +129,26 @@ final class SketchWindowModel: ObservableObject {
 
         let canvasSizeToSave = canvasSize
         let store = store
+        let rootDirectory = store.rootDirectory
 
         autosaveScheduler.schedule {
-            try? store.save(drawing: drawingToSave, canvasSize: canvasSizeToSave)
+            guard (try? store.save(drawing: drawingToSave, canvasSize: canvasSizeToSave)) != nil else {
+                return
+            }
+
             DispatchQueue.main.async { [weak self] in
+                NotificationCenter.default.post(
+                    name: .sketchyDrawingLibraryDidChange,
+                    object: rootDirectory
+                )
                 self?.reloadSummaries()
             }
         }
     }
+}
+
+extension Notification.Name {
+    static let sketchyDrawingLibraryDidChange = Notification.Name("Sketchy.drawingLibraryDidChange")
 }
 
 private extension Drawing {

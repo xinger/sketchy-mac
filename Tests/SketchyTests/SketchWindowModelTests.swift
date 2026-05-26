@@ -1,3 +1,4 @@
+import Combine
 import XCTest
 @testable import Sketchy
 @testable import SketchyCore
@@ -36,6 +37,30 @@ final class SketchWindowModelTests: XCTestCase {
         model.flushAutosave()
 
         XCTAssertTrue(try store.loadIndex().isEmpty)
+    }
+
+    func testSavingInOneWindowRefreshesAnotherWindowSidebar() {
+        let store = DrawingLibraryStore(rootDirectory: uniqueStoreURL())
+        let writer = SketchWindowModel(store: store)
+        let reader = SketchWindowModel(store: store)
+        var cancellables = Set<AnyCancellable>()
+        let expectation = expectation(description: "Reader window reloads saved drawing summary")
+
+        reader.$summaries
+            .dropFirst()
+            .sink { summaries in
+                if summaries.contains(where: { $0.id == writer.drawing.id }) {
+                    expectation.fulfill()
+                }
+            }
+            .store(in: &cancellables)
+
+        writer.beginStroke(at: DrawingPoint(x: 0, y: 0))
+        writer.appendStrokePoint(DrawingPoint(x: 20, y: 10))
+        writer.finishStroke()
+        writer.flushAutosave()
+
+        wait(for: [expectation], timeout: 1)
     }
 
     private func uniqueStoreURL() -> URL {
