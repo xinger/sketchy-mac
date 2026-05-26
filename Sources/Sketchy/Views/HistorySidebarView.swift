@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 import SketchyCore
 
@@ -111,8 +112,20 @@ private struct DrawingThumbnail: View {
     var body: some View {
         GeometryReader { proxy in
             ZStack {
-                if let drawing, !drawing.strokes.isEmpty {
-                    let bounds = DrawingBounds(strokes: drawing.strokes)
+                if let drawing, !drawing.strokes.isEmpty || !drawing.images.isEmpty {
+                    let bounds = DrawingBounds(drawing: drawing)
+
+                    ForEach(drawing.images) { drawingImage in
+                        if let image = NSImage(data: drawingImage.data) {
+                            let rect = bounds.project(drawingImage.frame, into: proxy.size)
+
+                            Image(nsImage: image)
+                                .resizable()
+                                .interpolation(.medium)
+                                .frame(width: rect.width, height: rect.height)
+                                .position(x: rect.midX, y: rect.midY)
+                        }
+                    }
 
                     ForEach(drawing.strokes) { stroke in
                         Path { path in
@@ -162,12 +175,22 @@ private struct DrawingBounds {
     var maxX: Double
     var maxY: Double
 
-    init(strokes: [DrawingStroke]) {
-        let points = strokes.flatMap(\.points)
-        minX = points.map(\.x).min() ?? 0
-        minY = points.map(\.y).min() ?? 0
-        maxX = points.map(\.x).max() ?? 1
-        maxY = points.map(\.y).max() ?? 1
+    init(drawing: Drawing) {
+        let points = drawing.strokes.flatMap(\.points)
+        let imagePoints = drawing.images.flatMap { image in
+            [
+                DrawingPoint(x: image.frame.x, y: image.frame.y),
+                DrawingPoint(
+                    x: image.frame.x + image.frame.width,
+                    y: image.frame.y + image.frame.height
+                )
+            ]
+        }
+        let allPoints = points + imagePoints
+        minX = allPoints.map(\.x).min() ?? 0
+        minY = allPoints.map(\.y).min() ?? 0
+        maxX = allPoints.map(\.x).max() ?? 1
+        maxY = allPoints.map(\.y).max() ?? 1
     }
 
     func project(_ point: DrawingPoint, into size: CGSize) -> CGPoint {
@@ -186,6 +209,21 @@ private struct DrawingBounds {
         return CGPoint(
             x: offsetX + (point.x - minX) * scale,
             y: offsetY + (point.y - minY) * scale
+        )
+    }
+
+    func project(_ frame: DrawingImageFrame, into size: CGSize) -> CGRect {
+        let origin = project(DrawingPoint(x: frame.x, y: frame.y), into: size)
+        let corner = project(
+            DrawingPoint(x: frame.x + frame.width, y: frame.y + frame.height),
+            into: size
+        )
+
+        return CGRect(
+            x: min(origin.x, corner.x),
+            y: min(origin.y, corner.y),
+            width: abs(corner.x - origin.x),
+            height: abs(corner.y - origin.y)
         )
     }
 }

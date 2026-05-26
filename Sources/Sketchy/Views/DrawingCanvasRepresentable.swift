@@ -73,6 +73,11 @@ final class DrawingCanvasView: NSView {
         registerImageDraggingTypes()
     }
 
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        window?.makeFirstResponder(self)
+    }
+
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
         true
     }
