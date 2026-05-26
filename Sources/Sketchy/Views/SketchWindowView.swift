@@ -145,13 +145,13 @@ struct SketchWindowView: View {
                 Image(systemName: "plus")
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(isRightEdgeClickFeedbackVisible ? .accentColor : .primary.opacity(0.34))
-                    .frame(width: 22, height: 44)
-                    .padding(.trailing, 1)
+                    .frame(width: 24, height: 44)
+                    .padding(.trailing, 12)
                     .opacity(shouldShowRightEdgePlus ? 1 : 0)
                     .animation(.easeOut(duration: 0.12), value: shouldShowRightEdgePlus)
                     .animation(.easeOut(duration: 0.08), value: isRightEdgeClickFeedbackVisible)
             }
-            .frame(width: 24)
+            .frame(width: 36)
             .frame(maxHeight: .infinity)
             .contentShape(Rectangle())
             .onHover { isHovering in
