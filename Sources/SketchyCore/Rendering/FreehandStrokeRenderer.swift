@@ -47,9 +47,8 @@ public enum FreehandStrokeRenderer {
     }
 
     private static func outlinePoints(points rawPoints: [DrawingPoint], baseWidth: Double) -> [DrawingPoint] {
-        let streamlinedPoints = streamlined(rawPoints, amount: 0.45)
         let points = sampledCurve(
-            points: streamlinedPoints,
+            points: rawPoints,
             maxSegmentLength: max(5, baseWidth * 1.1)
         )
 
@@ -153,31 +152,6 @@ public enum FreehandStrokeRenderer {
                 y: center.y + direction.y * radius * forward + normal.y * radius * sideways
             )
         }
-    }
-
-    private static func streamlined(_ points: [DrawingPoint], amount: Double) -> [DrawingPoint] {
-        guard points.count > 2 else {
-            return points
-        }
-
-        var result = [points[0]]
-        var previous = points[0]
-        let follow = min(max(amount, 0), 0.95)
-
-        for point in points.dropFirst().dropLast() {
-            let next = DrawingPoint(
-                x: previous.x + (point.x - previous.x) * (1 - follow),
-                y: previous.y + (point.y - previous.y) * (1 - follow)
-            )
-            result.append(next)
-            previous = next
-        }
-
-        if let last = points.last {
-            result.append(last)
-        }
-
-        return result
     }
 
     private static func sampledCurve(
