@@ -174,7 +174,7 @@ struct SketchWindowView: View {
 
     private func edgeCueOpacity(for proximity: CGFloat) -> Double {
         let clamped = min(max(Double(proximity), 0), 1)
-        return 0.18 + (0.22 * clamped)
+        return 0.24 + (0.44 * clamped)
     }
 
     private var windowPinButton: some View {
