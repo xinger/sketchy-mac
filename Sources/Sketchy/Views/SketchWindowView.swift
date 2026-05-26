@@ -90,7 +90,15 @@ struct SketchWindowView: View {
         .onChange(of: model.isPinned) { _ in
             applyWindowLevel(to: window)
         }
-        .onReceive(NotificationCenter.default.publisher(for: .newSketchyDrawingRequested)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .newSketchyDrawingRequested)) { notification in
+            guard
+                let targetWindow = notification.object as? NSWindow,
+                let window,
+                targetWindow === window
+            else {
+                return
+            }
+
             model.newDrawing()
         }
         .onDisappear {
