@@ -17,6 +17,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DIST_DIR="$ROOT_DIR/dist"
 UPDATES_DIR="$DIST_DIR/appcast"
 ARCHIVE="$DIST_DIR/releases/$APP_NAME-$VERSION-$BUILD.zip"
+TRACKED_APPCAST="$ROOT_DIR/docs/appcast.xml"
 
 DOWNLOAD_URL_PREFIX="${DOWNLOAD_URL_PREFIX%/}/"
 
@@ -36,15 +37,33 @@ SKETCHY_CONFIGURATION=release \
 "$ROOT_DIR/script/build_and_run.sh" package
 
 mkdir -p "$UPDATES_DIR"
+rm -f "$UPDATES_DIR"/*.zip \
+  "$UPDATES_DIR"/*.dmg \
+  "$UPDATES_DIR"/*.delta \
+  "$UPDATES_DIR"/*.md \
+  "$UPDATES_DIR"/*.html \
+  "$UPDATES_DIR"/*.txt
+
+if [[ -f "$TRACKED_APPCAST" ]]; then
+  cp "$TRACKED_APPCAST" "$UPDATES_DIR/appcast.xml"
+fi
+
 cp "$ARCHIVE" "$UPDATES_DIR/"
 
 if [[ -n "$RELEASE_NOTES_FILE" ]]; then
   cp "$RELEASE_NOTES_FILE" "$UPDATES_DIR/$APP_NAME-$VERSION-$BUILD.md"
 fi
 
-"$GENERATE_APPCAST" \
-  --download-url-prefix "$DOWNLOAD_URL_PREFIX" \
-  "$UPDATES_DIR"
+generate_appcast_args=(
+  --download-url-prefix "$DOWNLOAD_URL_PREFIX"
+  --versions "$BUILD"
+)
+
+if [[ -n "$RELEASE_NOTES_FILE" ]]; then
+  generate_appcast_args+=(--embed-release-notes)
+fi
+
+"$GENERATE_APPCAST" "${generate_appcast_args[@]}" "$UPDATES_DIR"
 
 echo "Archive: $ARCHIVE"
 echo "Appcast: $UPDATES_DIR/appcast.xml"

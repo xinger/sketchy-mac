@@ -15,11 +15,20 @@ RELEASE_NOTES_FILE="${3:-}"
 TAG="v$VERSION"
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-ARCHIVE="$ROOT_DIR/dist/releases/$APP_NAME-$VERSION-$BUILD.zip"
+ZIP_ARCHIVE="$ROOT_DIR/dist/releases/$APP_NAME-$VERSION-$BUILD.zip"
+DMG_ARCHIVE="$ROOT_DIR/dist/releases/$APP_NAME-$VERSION-$BUILD.dmg"
+ZIP_NAME="$APP_NAME-$VERSION-$BUILD.zip"
+DMG_NAME="$APP_NAME-$VERSION-$BUILD.dmg"
 
-if [[ ! -f "$ARCHIVE" ]]; then
-  echo "release archive not found: $ARCHIVE" >&2
+if [[ ! -f "$ZIP_ARCHIVE" ]]; then
+  echo "release archive not found: $ZIP_ARCHIVE" >&2
   echo "run: script/package_update.sh $VERSION $BUILD" >&2
+  exit 1
+fi
+
+if [[ ! -f "$DMG_ARCHIVE" ]]; then
+  echo "release archive not found: $DMG_ARCHIVE" >&2
+  echo "run: script/package_dmg.sh $VERSION $BUILD" >&2
   exit 1
 fi
 
@@ -60,13 +69,13 @@ if [[ -n "$RELEASE_NOTES_FILE" ]]; then
 fi
 
 if gh release view "$TAG" --repo "$REPO" >/dev/null 2>&1; then
-  gh release upload "$TAG" "$ARCHIVE" --clobber --repo "$REPO"
+  gh release upload "$TAG" "$ZIP_ARCHIVE" "$DMG_ARCHIVE" --clobber --repo "$REPO"
 
   if [[ -n "$RELEASE_NOTES_FILE" ]]; then
     gh release edit "$TAG" --repo "$REPO" --title "Sketchy $VERSION" --notes-file "$RELEASE_NOTES_FILE"
   fi
 else
-  gh release create "$TAG" "$ARCHIVE" \
+  gh release create "$TAG" "$ZIP_ARCHIVE" "$DMG_ARCHIVE" \
     --repo "$REPO" \
     --target "$CURRENT_BRANCH" \
     --title "Sketchy $VERSION" \
@@ -74,4 +83,4 @@ else
 fi
 
 gh api "repos/$REPO/releases/tags/$TAG" \
-  --jq ".assets[] | select(.name == \"$APP_NAME-$VERSION-$BUILD.zip\") | {name, size, digest, browser_download_url}"
+  --jq ".assets[] | select(.name == \"$ZIP_NAME\" or .name == \"$DMG_NAME\") | {name, size, digest, browser_download_url}"

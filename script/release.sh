@@ -3,9 +3,11 @@ set -euo pipefail
 
 APPCAST_PATH="docs/appcast.xml"
 SITE_INDEX_PATH="docs/index.html"
+RELEASE_NOTES_DIR="docs/release-notes"
 
 if [[ $# -lt 1 || $# -gt 2 ]]; then
   echo "usage: $0 <version> [release-notes-file]" >&2
+  echo "if release-notes-file is omitted, $RELEASE_NOTES_DIR/<version>.md is used when present" >&2
   exit 2
 fi
 
@@ -20,6 +22,10 @@ fi
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
+if [[ -z "$RELEASE_NOTES_FILE" && -f "$RELEASE_NOTES_DIR/$VERSION.md" ]]; then
+  RELEASE_NOTES_FILE="$RELEASE_NOTES_DIR/$VERSION.md"
+fi
+
 if [[ -n "$(git status --short)" ]]; then
   echo "working tree has uncommitted changes; commit or stash them before release" >&2
   git status --short >&2
@@ -29,6 +35,10 @@ fi
 if [[ -n "$RELEASE_NOTES_FILE" && ! -f "$RELEASE_NOTES_FILE" ]]; then
   echo "release notes file not found: $RELEASE_NOTES_FILE" >&2
   exit 1
+fi
+
+if [[ -n "$RELEASE_NOTES_FILE" ]]; then
+  echo "Using release notes: $RELEASE_NOTES_FILE"
 fi
 
 next_build_number() {
@@ -54,6 +64,7 @@ next_build_number() {
 BUILD="$(next_build_number)"
 
 "$ROOT_DIR/script/package_update.sh" "$VERSION" "$BUILD" "" "$RELEASE_NOTES_FILE"
+"$ROOT_DIR/script/package_dmg.sh" "$VERSION" "$BUILD"
 cp "$ROOT_DIR/dist/appcast/appcast.xml" "$APPCAST_PATH"
 
 python3 - "$SITE_INDEX_PATH" "$VERSION" "$BUILD" <<'PY'
@@ -67,8 +78,8 @@ build = sys.argv[3]
 text = path.read_text()
 
 text = re.sub(
-    r"https://github[.]com/xinger/sketchy-mac/releases/download/v[^/]+/(?:SketchyMac|Sketchy)-[^\"/]+[.]zip",
-    f"https://github.com/xinger/sketchy-mac/releases/download/v{version}/Sketchy-{version}-{build}.zip",
+    r"https://github[.]com/xinger/sketchy-mac/releases/download/v[^/]+/(?:SketchyMac|Sketchy)-[^\"/]+[.](?:zip|dmg)",
+    f"https://github.com/xinger/sketchy-mac/releases/download/v{version}/Sketchy-{version}-{build}.dmg",
     text,
 )
 text = re.sub(
