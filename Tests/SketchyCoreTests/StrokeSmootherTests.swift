@@ -19,4 +19,23 @@ final class StrokeSmootherTests: XCTestCase {
 
         XCTAssertTrue(path.hasSuffix("L 80.00 30.00"))
     }
+
+    func testFinalPathSmoothsInteriorButKeepsLastEndpoint() {
+        let stroke = DrawingStroke(
+            points: [
+                DrawingPoint(x: 10, y: 10),
+                DrawingPoint(x: 20, y: 20),
+                DrawingPoint(x: 40, y: 18),
+                DrawingPoint(x: 80, y: 30)
+            ],
+            color: .paletteRed,
+            width: .medium,
+            isDashed: false
+        )
+
+        let path = StrokeSmoother.finalPath(for: stroke)
+
+        XCTAssertTrue(path.contains("Q"))
+        XCTAssertTrue(path.hasSuffix("L 80.00 30.00"))
+    }
 }

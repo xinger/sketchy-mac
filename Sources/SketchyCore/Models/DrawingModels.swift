@@ -20,6 +20,16 @@ public struct DrawingPoint: Codable, Equatable, Sendable {
     }
 }
 
+public struct CanvasSize: Codable, Equatable, Sendable {
+    public var width: Double
+    public var height: Double
+
+    public init(width: Double, height: Double) {
+        self.width = width
+        self.height = height
+    }
+}
+
 public struct DrawingColor: Codable, Equatable, Hashable, Sendable {
     public var name: String
     public var hex: String
