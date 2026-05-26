@@ -17,13 +17,7 @@ final class SketchWindowModel: ObservableObject {
 
     init(store: DrawingLibraryStore) {
         self.store = store
-
-        let summaries = (try? store.loadIndex()) ?? []
-        if let first = summaries.first, let loaded = try? store.loadDrawing(id: first.id) {
-            drawing = loaded
-        } else {
-            drawing = Drawing()
-        }
+        drawing = Drawing(updatedAt: Date())
 
         reloadSummaries()
     }
@@ -43,7 +37,9 @@ final class SketchWindowModel: ObservableObject {
         }
 
         canvasSize = nextSize
-        scheduleAutosave()
+        if drawing.hasPersistableContent {
+            scheduleAutosave()
+        }
     }
 
     func beginStroke(at point: DrawingPoint) {
@@ -89,7 +85,6 @@ final class SketchWindowModel: ObservableObject {
         flushAutosave()
         drawing = Drawing(updatedAt: Date())
         activeStroke = nil
-        scheduleAutosave()
     }
 
     func selectDrawing(id: DrawingID) {
@@ -118,6 +113,10 @@ final class SketchWindowModel: ObservableObject {
 
     private func scheduleAutosave() {
         let drawingToSave = drawing
+        guard drawingToSave.hasPersistableContent else {
+            return
+        }
+
         let canvasSizeToSave = canvasSize
         let store = store
 
@@ -127,5 +126,11 @@ final class SketchWindowModel: ObservableObject {
                 self?.reloadSummaries()
             }
         }
+    }
+}
+
+private extension Drawing {
+    var hasPersistableContent: Bool {
+        !strokes.isEmpty || !images.isEmpty
     }
 }

@@ -24,6 +24,7 @@ let package = Package(
             ],
             exclude: ["Resources"]
         ),
-        .testTarget(name: "SketchyCoreTests", dependencies: ["SketchyCore"])
+        .testTarget(name: "SketchyCoreTests", dependencies: ["SketchyCore"]),
+        .testTarget(name: "SketchyTests", dependencies: ["Sketchy"])
     ]
 )
