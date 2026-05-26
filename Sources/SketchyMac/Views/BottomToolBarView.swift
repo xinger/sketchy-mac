@@ -105,7 +105,7 @@ private struct ToolButtonHitArea: ViewModifier {
             .contentShape(Rectangle())
             .overlay(
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .stroke(Color.primary.opacity(isHovering ? 0.18 : 0), lineWidth: 1)
+                    .stroke(Color.white.opacity(isHovering ? 0.75 : 0), lineWidth: 1)
             )
             .onHover { isHovering = $0 }
     }
