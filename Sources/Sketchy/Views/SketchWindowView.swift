@@ -7,6 +7,7 @@ struct SketchWindowView: View {
     @State private var window: NSWindow?
     @State private var hoverRevealWorkItem: DispatchWorkItem?
     @State private var hoverHideWorkItem: DispatchWorkItem?
+    @State private var isLeftEdgeHovering = false
     @State private var viewport = ViewportTransform()
 
     init(store: DrawingLibraryStore) {
@@ -96,8 +97,19 @@ struct SketchWindowView: View {
     }
 
     private var leftHoverStrip: some View {
-        Color.clear
+        ZStack(alignment: .leading) {
+            Color.clear
+
+            RoundedRectangle(cornerRadius: 3, style: .continuous)
+                .fill(Color.primary.opacity(0.16))
+                .frame(width: 4, height: 72)
+                .padding(.leading, 6)
+                .opacity(isLeftEdgeHovering && !model.isSidebarVisible ? 1 : 0)
+                .animation(.easeOut(duration: 0.14), value: isLeftEdgeHovering)
+                .animation(.easeOut(duration: 0.14), value: model.isSidebarVisible)
+        }
             .frame(width: 24)
+            .frame(maxHeight: .infinity)
             .contentShape(Rectangle())
             .zIndex(2)
             .onHover { isHovering in
@@ -107,6 +119,9 @@ struct SketchWindowView: View {
 
     private func handleLeftEdgeHover(_ isHovering: Bool) {
         hoverRevealWorkItem?.cancel()
+        withAnimation(.easeOut(duration: 0.14)) {
+            isLeftEdgeHovering = isHovering
+        }
 
         if !isHovering {
             scheduleSidebarHide()
@@ -157,6 +172,7 @@ struct SketchWindowView: View {
         hoverRevealWorkItem?.cancel()
         if isVisible {
             cancelSidebarHide()
+            isLeftEdgeHovering = false
         }
 
         withAnimation(.easeOut(duration: 0.18)) {
