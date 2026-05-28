@@ -41,6 +41,14 @@ public final class AutosaveScheduler {
         action?()
     }
 
+    public func cancel() {
+        lock.lock()
+        pendingWorkItem?.cancel()
+        pendingWorkItem = nil
+        pendingAction = nil
+        lock.unlock()
+    }
+
     private func runPendingAction() {
         lock.lock()
         let action = pendingAction

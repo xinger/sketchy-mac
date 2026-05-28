@@ -33,6 +33,8 @@ struct SketchWindowView: View {
                     onAppend: model.appendStrokePoint(_:),
                     onEnd: model.finishStroke,
                     onInsertImage: model.insertImage(_:),
+                    onUndo: model.undo,
+                    onRedo: model.redo,
                     onCanvasMouseDown: hideSidebarFromCanvasClick
                 )
                 .background(Color.clear)
@@ -89,15 +91,25 @@ struct SketchWindowView: View {
             applyWindowLevel(to: window)
         }
         .onReceive(NotificationCenter.default.publisher(for: .newSketchyDrawingRequested)) { notification in
-            guard
-                let targetWindow = notification.object as? NSWindow,
-                let window,
-                targetWindow === window
-            else {
+            guard notificationTargetsCurrentWindow(notification) else {
                 return
             }
 
             model.newDrawing()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .undoSketchyDrawingRequested)) { notification in
+            guard notificationTargetsCurrentWindow(notification) else {
+                return
+            }
+
+            model.undo()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .redoSketchyDrawingRequested)) { notification in
+            guard notificationTargetsCurrentWindow(notification) else {
+                return
+            }
+
+            model.redo()
         }
         .onDisappear {
             rightEdgeClickFeedbackWorkItem?.cancel()
@@ -259,6 +271,17 @@ struct SketchWindowView: View {
         }
 
         setSidebarVisible(false)
+    }
+
+    private func notificationTargetsCurrentWindow(_ notification: Notification) -> Bool {
+        guard
+            let targetWindow = notification.object as? NSWindow,
+            let window
+        else {
+            return false
+        }
+
+        return targetWindow === window
     }
 
     private func configureWindow(_ window: NSWindow?) {

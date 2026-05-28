@@ -41,10 +41,30 @@ struct SketchyApp: App {
                 }
                 .keyboardShortcut("n", modifiers: [.command, .shift])
             }
+
+            CommandGroup(replacing: .undoRedo) {
+                Button("Undo") {
+                    NotificationCenter.default.post(
+                        name: .undoSketchyDrawingRequested,
+                        object: NSApp.keyWindow ?? NSApp.mainWindow
+                    )
+                }
+                .keyboardShortcut("z", modifiers: [.command])
+
+                Button("Redo") {
+                    NotificationCenter.default.post(
+                        name: .redoSketchyDrawingRequested,
+                        object: NSApp.keyWindow ?? NSApp.mainWindow
+                    )
+                }
+                .keyboardShortcut("z", modifiers: [.command, .shift])
+            }
         }
     }
 }
 
 extension Notification.Name {
     static let newSketchyDrawingRequested = Notification.Name("Sketchy.newDrawingRequested")
+    static let undoSketchyDrawingRequested = Notification.Name("Sketchy.undoDrawingRequested")
+    static let redoSketchyDrawingRequested = Notification.Name("Sketchy.redoDrawingRequested")
 }

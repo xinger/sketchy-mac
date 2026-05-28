@@ -11,6 +11,8 @@ struct DrawingCanvasRepresentable: NSViewRepresentable {
     var onAppend: (DrawingPoint) -> Void
     var onEnd: () -> Void
     var onInsertImage: (DrawingImage) -> Void
+    var onUndo: () -> Void
+    var onRedo: () -> Void
     var onCanvasMouseDown: () -> Void
 
     func makeNSView(context: Context) -> DrawingCanvasView {
@@ -19,6 +21,8 @@ struct DrawingCanvasRepresentable: NSViewRepresentable {
         view.onAppend = onAppend
         view.onEnd = onEnd
         view.onInsertImage = onInsertImage
+        view.onUndo = onUndo
+        view.onRedo = onRedo
         view.onCanvasMouseDown = onCanvasMouseDown
         view.onViewportChange = { viewport = $0 }
         return view
@@ -33,6 +37,8 @@ struct DrawingCanvasRepresentable: NSViewRepresentable {
         nsView.onAppend = onAppend
         nsView.onEnd = onEnd
         nsView.onInsertImage = onInsertImage
+        nsView.onUndo = onUndo
+        nsView.onRedo = onRedo
         nsView.onCanvasMouseDown = onCanvasMouseDown
         nsView.onViewportChange = { viewport = $0 }
         nsView.needsDisplay = true
@@ -53,6 +59,8 @@ final class DrawingCanvasView: NSView {
     var onAppend: ((DrawingPoint) -> Void)?
     var onEnd: (() -> Void)?
     var onInsertImage: ((DrawingImage) -> Void)?
+    var onUndo: (() -> Void)?
+    var onRedo: (() -> Void)?
     var onCanvasMouseDown: (() -> Void)?
     var onViewportChange: ((ViewportTransform) -> Void)?
     private var renderedImageCache: [UUID: NSImage] = [:]
@@ -116,10 +124,25 @@ final class DrawingCanvasView: NSView {
     }
 
     override func performKeyEquivalent(with event: NSEvent) -> Bool {
+        guard event.type == .keyDown else {
+            return super.performKeyEquivalent(with: event)
+        }
+
+        let commandModifiers = event.modifierFlags.intersection([.command, .shift, .option, .control])
+        let key = event.charactersIgnoringModifiers?.lowercased()
+
+        if key == "z", commandModifiers == [.command] {
+            onUndo?()
+            return true
+        }
+
+        if key == "z", commandModifiers == [.command, .shift] {
+            onRedo?()
+            return true
+        }
+
         let modifiers = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
-        if event.type == .keyDown,
-           modifiers.contains(.command),
-           event.charactersIgnoringModifiers?.lowercased() == "v" {
+        if modifiers.contains(.command), key == "v" {
             return insertImage(from: .general) || super.performKeyEquivalent(with: event)
         }
 

@@ -10,10 +10,15 @@ final class SketchWindowModel: ObservableObject {
     @Published var cachedDrawings: [DrawingID: Drawing] = [:]
     @Published var isSidebarVisible = false
     @Published var isPinned = false
+    @Published private(set) var canUndo = false
+    @Published private(set) var canRedo = false
 
+    private let historyLimit = 50
     private let store: DrawingLibraryStore
     private let autosaveScheduler = AutosaveScheduler(interval: 0.5)
     private var canvasSize = CanvasSize(width: 900, height: 650)
+    private var undoStack: [Drawing] = []
+    private var redoStack: [Drawing] = []
     private var cancellables = Set<AnyCancellable>()
 
     init(store: DrawingLibraryStore) {
@@ -80,21 +85,44 @@ final class SketchWindowModel: ObservableObject {
             return
         }
 
+        recordUndoStep()
         drawing.strokes.append(stroke)
-        drawing.updatedAt = Date()
-        scheduleAutosave()
+        markDrawingChanged()
     }
 
     func insertImage(_ image: DrawingImage) {
+        recordUndoStep()
         drawing.images.append(image)
-        drawing.updatedAt = Date()
-        scheduleAutosave()
+        markDrawingChanged()
+    }
+
+    func undo() {
+        guard let previousDrawing = undoStack.popLast() else {
+            updateHistoryAvailability()
+            return
+        }
+
+        activeStroke = nil
+        appendRedoStep(drawing)
+        restoreDrawingSnapshot(previousDrawing)
+    }
+
+    func redo() {
+        guard let nextDrawing = redoStack.popLast() else {
+            updateHistoryAvailability()
+            return
+        }
+
+        activeStroke = nil
+        appendUndoStep(drawing)
+        restoreDrawingSnapshot(nextDrawing)
     }
 
     func newDrawing() {
         flushAutosave()
         drawing = Drawing(updatedAt: Date())
         activeStroke = nil
+        resetHistory()
     }
 
     func selectDrawing(id: DrawingID) {
@@ -105,6 +133,7 @@ final class SketchWindowModel: ObservableObject {
 
         drawing = loaded
         activeStroke = nil
+        resetHistory()
     }
 
     func flushAutosave() {
@@ -123,7 +152,10 @@ final class SketchWindowModel: ObservableObject {
 
     private func scheduleAutosave() {
         let drawingToSave = drawing
-        guard drawingToSave.hasPersistableContent else {
+        let hasSavedDrawing = summaries.contains { $0.id == drawingToSave.id }
+            || cachedDrawings[drawingToSave.id] != nil
+        guard drawingToSave.hasPersistableContent || hasSavedDrawing else {
+            autosaveScheduler.cancel()
             return
         }
 
@@ -144,6 +176,54 @@ final class SketchWindowModel: ObservableObject {
                 self?.reloadSummaries()
             }
         }
+    }
+
+    private func recordUndoStep() {
+        appendUndoStep(drawing)
+        redoStack.removeAll()
+        updateHistoryAvailability()
+    }
+
+    private func appendUndoStep(_ snapshot: Drawing) {
+        undoStack.append(snapshot)
+        trimHistoryStack(&undoStack)
+    }
+
+    private func appendRedoStep(_ snapshot: Drawing) {
+        redoStack.append(snapshot)
+        trimHistoryStack(&redoStack)
+    }
+
+    private func restoreDrawingSnapshot(_ snapshot: Drawing) {
+        var restoredDrawing = snapshot
+        restoredDrawing.updatedAt = Date()
+        drawing = restoredDrawing
+        updateHistoryAvailability()
+        scheduleAutosave()
+    }
+
+    private func markDrawingChanged() {
+        drawing.updatedAt = Date()
+        scheduleAutosave()
+    }
+
+    private func resetHistory() {
+        undoStack.removeAll()
+        redoStack.removeAll()
+        updateHistoryAvailability()
+    }
+
+    private func updateHistoryAvailability() {
+        canUndo = !undoStack.isEmpty
+        canRedo = !redoStack.isEmpty
+    }
+
+    private func trimHistoryStack(_ stack: inout [Drawing]) {
+        guard stack.count > historyLimit else {
+            return
+        }
+
+        stack.removeFirst(stack.count - historyLimit)
     }
 }
 
