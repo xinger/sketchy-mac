@@ -3,6 +3,25 @@
     <channel>
         <title>Sketchy</title>
         <item>
+            <title>1.2.4</title>
+            <pubDate>Thu, 28 May 2026 14:35:47 +0300</pubDate>
+            <sparkle:version>4</sparkle:version>
+            <sparkle:shortVersionString>1.2.4</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>11.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description sparkle:format="markdown"><![CDATA[## Sketchy 1.2.4
+
+- Added Undo and Redo for drawing changes.
+- Added `Cmd+Z` and `Cmd+Shift+Z` shortcuts, with matching Edit menu actions.
+- Kept the last 50 drawing steps available for history navigation.
+- Supported undo and redo for completed strokes and inserted images.
+- Cleared redo history after making a new drawing change.
+- Reset undo history when starting a new drawing or switching to another saved drawing.
+- Improved autosave behavior so undoing the only change in a new unsaved drawing does not save stale content.
+]]></description>
+            <enclosure url="https://github.com/xinger/sketchy-mac/releases/download/v1.2.4/Sketchy-1.2.4-4.zip" length="1526442" type="application/octet-stream" sparkle:edSignature="zs6HB1bNFrUUY7bZrxWlRt1RR5sfW6SEtpdDgtuXyg+FioyDGAooVFV6qKA9UkrlijEDv2bJj3KjxWfv3YtwAw=="/>
+        </item>
+        <item>
             <title>1.2.3</title>
             <pubDate>Tue, 26 May 2026 21:02:03 +0300</pubDate>
             <sparkle:version>3</sparkle:version>
